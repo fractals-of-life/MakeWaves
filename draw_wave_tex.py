@@ -73,6 +73,17 @@ def add_signal(signal_array, json_file, indent_level, scale):
                     readability.
     scale           : This is the scale for drawing out the waveforms. This is
                     passed down from the command line of this script. 
+
+
+    The following wxpansion will be done assuming Scale = 4
+    0    -> 4L
+    1    -> 4H
+    X/x  -> 4X
+    G    -> 4*0.03T 4*0.97T; A glitch showing up on last level., where T is
+            Toggle in TEX
+    0.x  -> 0.25*4U 0.75*4L; an undef lasting 0.25 of a cycle followed by Hig;  
+    -0.x -> 0.25*4U 0.75*4H; an undef lasting 0.25 of a cycle followed by Low;
+    |    -> ;dotted]2<val_b4_break> ; draws a dotted continuation, L H, U etc
     """
 
     logger.debug('+ Raw signal:{0}'.format(signal_array))
@@ -101,6 +112,7 @@ def add_signal(signal_array, json_file, indent_level, scale):
         # this is a simple encoding. 0.x will indicate a undef to 1 transition which
         # is not full cycle, and -0.x will show a undef to 0 transition
         # can potenitally be expanded to use x to decide proportion.
+        # The combo indication is fixed to 0.25
         elif (re.search(r'0.\d',time_step)):
             if (re.search(r'-0.\d',time_step)):
                 signal_array[i+1] = str(0.25*scale) + 'U' + str(0.75*scale) + 'L'
@@ -273,10 +285,8 @@ def add_bus(signal_array, json_file, indent_level, scale):
 
 
         elif (re.search('\|', time_step)):
-            logger.warning(signal_array[i])
             # Extract type along with decoration for use in dotted.
             temp = re.sub(r'(?:\[.*\])?\;?\d+([UDXLHC]).*',r'\1',signal_array[i])
-            logger.warning(temp)
             signal_array[i+1] = ';[dotted]2' + temp + ';'
 
         else:
@@ -536,6 +546,9 @@ def draw_cycle_links(start,end,decoration,tex_blk):
 # draw_edge_lines
 # ------------------------------------------------------------------------------
 def draw_edge_lines(signal_array, clock_edges, clk_filter, indent_level, marked_edges, tex_blk):
+    """ Draw clock edge markers, according to the active edge of the clock"""
+
+    logger.debug('+ Add clock cycle markers @ clock edge for {0}'.format(clk_filter))
     tex_blk = tex_blk + '\\begin{scope}[semitransparent,ultra thin]\n'
     tex_blk = tex_blk + '\\vertlines[gray]{{{0}}}\n'.format(','.join(str(i[1]) for i in clock_edges))
     #%\vertlines[blue]{}
@@ -587,6 +600,10 @@ def time_offset_signal(signal_array, scale):
 
 # ------------------------------------------------------------------------------
 # Main
+# The tex is based on the following references.
+# tikz-timing-> this is where the timing fonts and the meat of the timing
+# diagram capability is
+# tikzpgf->     this is used for grahic overlays and annotation
 # ------------------------------------------------------------------------------
 
 timing_block = [];
@@ -658,87 +675,91 @@ with open(in_file , 'r') as csv_file:
         indent_level.append('  ')
         for i, line in enumerate(csv_file):
             
-             logger.debug('Processing csv file @ line {0}'.format(i)) 
-             logger.debug('   line {0}'.format(line)) 
+            logger.debug('Processing csv file @ line {0}'.format(i)) 
+            logger.debug('   line {0}'.format(line)) 
 
-             line=line.strip()
-             line=line.rstrip('\r\n')
-             signal_array = line.split(';')
-             signal_array[0] = re.sub('_','\_',signal_array[0]);
-             if (re.search('TITLE', signal_array[0])):
-                 title = ''.join(signal_array[1:])
-             elif (re.search('NOTE:', signal_array[0])):
-                 if (not(footer) and re.search(':NOTE:', signal_array[0])):
-                     marked_edges = dump_timingtable(timing_block, json_file, indent_level) 
-                     footer =1
-                     wave_section=0
-                     continue
-                 # skip empty cells
-                 # The assumption is notes section has 2 columns, 
-                 signal_array = filter(None, signal_array)
-                 notes = ''.join(signal_array[2:])
-                 # becasue ',' is a delimiter in csv, a ',' used in a cells text will cause it to be quouted
-                 # the comma will still be lost because of the line split reading from the csv based on ','
-                 notes = re.sub('"','',notes)
+            line=line.strip()
+            line=line.rstrip('\r\n')
+            signal_array = line.split(';')
+            signal_array[0] = re.sub('_','\_',signal_array[0]);
+            if (re.search('TITLE', signal_array[0])):
+                title = ''.join(signal_array[1:])
+            elif (re.search('NOTE:', signal_array[0])):
+                if (not(footer) and re.search(':NOTE:', signal_array[0])):
+                   marked_edges = dump_timingtable(
+                                      timing_block,
+                                      json_file,
+                                      indent_level) 
+                   footer=1
+                   wave_section=0
+                   continue
+                # skip empty cells
+                # The assumption is notes section has 2 columns, 
+                signal_array = filter(None, signal_array)
+                notes = ''.join(signal_array[2:])
+                # becasue ',' is a delimiter in csv, a ',' used in a cells
+                # text will cause it to be quouted the comma will still be
+                # lost because of the line split reading from the csv based on
+                # ','
+                notes = re.sub('"','',notes)
 
-                 # skip if notes are empty
-                 if (len(signal_array) > 1):
+                # skip if notes are empty
+                if (len(signal_array) > 1):
 
-                     # this is a section to add labels at the marked edges
-                     # this is the notes section with actual text
-                     # FIXME this is an afterthought, like many other things here
-                     if (re.search(r'^[A-Z]+\d+>', signal_array[1])):
-                         note_label_count += 1
-                         tex_blk_note_labels = tex_blk_note_labels + '\\draw [gray, ultra thin,{{Circle[length=1pt]}}-]($({0}.HIGH)-(0.5,0.07)$)node[above=3,left=-1pt]{{\\tiny \\em {1}}} -- ($({0}.HIGH)+(-0.5,0.6)$);\n'.format(signal_array[1], note_label_count) 
-                         indent_level.append('  ')
-                         tex_blk_notes = tex_blk_notes + ('{0}\item ({2}) {1}\n'.format(''.join(indent_level), notes, note_label_count))
-                     else:
-                         indent_level.append('  ')
-                         tex_blk_notes = tex_blk_notes + ('\par{0}  {1}\n'.format(''.join(indent_level), notes))
-                   
+                    # this is a section to add labels at the marked edges
+                    # this is the notes section with actual text
+                    # FIXME this is an afterthought, like many other things here
+                    if (re.search(r'^[A-Z]+\d+>', signal_array[1])):
+                        note_label_count += 1
+                        tex_blk_note_labels = tex_blk_note_labels + '\\draw [gray, ultra thin, {{Circle[length=1pt]}}-] ($({0}.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {{\\tiny \\em {1}}} -- ($({0}.HIGH) +(-0.5,0.6)$);\n' .format(signal_array[1], note_label_count) 
 
-                 
-                 #add_notes(signal_array, json_file, indent_level,footer)
-             elif (re.search('^E:|^L:', signal_array[0])):
-                 tex_blk_drawedges = add_arrows(signal_array, json_file, indent_level, marked_edges, tex_blk_drawedges, set_for_non_overlap_labels)
-             elif (re.search('^D:\|\|', signal_array[0])):
-                 clk_filter = '*'
-                 if re.search('C\d+:',signal_array[2]):
-                     clk_filter = re.sub(r'C\d+:(.*)', r'\1', signal_array[2])
-                     clk_filter = re.sub(r'_', '', clk_filter)
-                     logger.info('{0}'.format(clk_filter))
+                        indent_level.append('  ')
+                        tex_blk_notes = tex_blk_notes + ('{0}\item ({2}) {1}\n' .format(''.join(indent_level), notes, note_label_count))
+                    else:
+                        indent_level.append('  ')
+                        tex_blk_notes = tex_blk_notes + ('\par{0}  {1}\n' .format(''.join(indent_level), notes))
 
-                 tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
+            # draw an arrow from edge or level    
+            elif (re.search('^E:|^L:', signal_array[0])):
+                tex_blk_drawedges = add_arrows(signal_array, json_file, indent_level, marked_edges, tex_blk_drawedges, set_for_non_overlap_labels)
+            # draw clock markers.
+            elif (re.search('^D:\|\|', signal_array[0])):
+                clk_filter = '*'
+                if re.search('C\d+:',signal_array[2]):
+                    clk_filter = re.sub(r'C\d+:(.*)', r'\1', signal_array[2])
+                    clk_filter = re.sub(r'_', '', clk_filter)
+                    logger.debug('{0}'.format(clk_filter))
 
-             elif (wave_section):
-                 if (re.search('{|}', signal_array[0])):
-                     add_grp(signal_array, json_file, indent_level, scale)
-                     #timing_block.append(signal_array)
-                 elif (re.search('^B:|^b:', signal_array[0])):
-                     add_bus(signal_array, json_file, indent_level, scale)
-                     timing_block.append(signal_array)
-                 elif (re.search('^M:', signal_array[0])):
-                     add_marker(signal_array, json_file, indent_level, scale)
-                     timing_block.append(signal_array)
-                 elif (re.search(r'(?i)^C\d+:', signal_array[0])):
-                     add_clock(signal_array,json_file, indent_level, scale, clock_edges)
-                     timing_block.append(signal_array)
-                 elif (re.search('\S+', signal_array[0])):
-                     add_signal(signal_array,json_file, indent_level, scale)
-                     timing_block.append(signal_array)
-                 else:
-                     #json_file.write('{0}\\\\\n'.format(''.join(indent_level)))
-                     timing_block.append('\\' )
-                 # Here we handling the decoration of signal name, namely italics and
-                 # bold  
-                 signal_array[0] = re.sub(r'(.*)<i>',r'\\textit{\1}', signal_array[0]) 
-                 signal_array[0] = re.sub(r'(.*)<b>',r'\\textbf{\1}', signal_array[0]) 
-                 signal_array[0] = re.sub(r'(.*)<u>',r'\\underline{\1}', signal_array[0]) 
-                 if (re.search(r'<.0.\d+>', signal_array[0])):
-                     # Undo the last signal push, The signal is still in signal_array.
-                     timing_block.pop()
-                     time_offset_signal(signal_array, scale)
-                     timing_block.append(signal_array)
+                tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
+            elif (wave_section):
+                if (re.search('{|}', signal_array[0])):
+                    add_grp(signal_array, json_file, indent_level, scale)
+                    #timing_block.append(signal_array)
+                elif (re.search('^B:|^b:', signal_array[0])):
+                    add_bus(signal_array, json_file, indent_level, scale)
+                    timing_block.append(signal_array)
+                elif (re.search('^M:', signal_array[0])):
+                    add_marker(signal_array, json_file, indent_level, scale)
+                    timing_block.append(signal_array)
+                elif (re.search(r'(?i)^C\d+:', signal_array[0])):
+                    add_clock(signal_array,json_file, indent_level, scale, clock_edges)
+                    timing_block.append(signal_array)
+                elif (re.search('\S+', signal_array[0])):
+                    add_signal(signal_array,json_file, indent_level, scale)
+                    timing_block.append(signal_array)
+                else:
+                    #json_file.write('{0}\\\\\n'.format(''.join(indent_level)))
+                    timing_block.append('\\' )
+                # Here we handling the decoration of signal name, namely italics and
+                # bold  
+                signal_array[0] = re.sub(r'(.*)<i>',r'\\textit{\1}', signal_array[0]) 
+                signal_array[0] = re.sub(r'(.*)<b>',r'\\textbf{\1}', signal_array[0]) 
+                signal_array[0] = re.sub(r'(.*)<u>',r'\\underline{\1}', signal_array[0]) 
+                if (re.search(r'<.0.\d+>', signal_array[0])):
+                    # Undo the last signal push, The signal is still in signal_array.
+                    timing_block.pop()
+                    time_offset_signal(signal_array, scale)
+                    timing_block.append(signal_array)
 
 
         # add the title grabbed from CSV
