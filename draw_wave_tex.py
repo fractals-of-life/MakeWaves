@@ -846,7 +846,8 @@ with open(in_file , 'r') as csv_file:
 
         json_file.write(tex_blk_close_pgf_tikz)
 
-        if (re.search('.',tex_blk_notes)):
+        #if (re.search('.',tex_blk_notes)):
+        if (tex_blk_notes):
             json_file.write('\\par {\\textsf{NOTE:}\n')
             json_file.write('{0}\\begin{{enumerate}}{{}}\n'.format(''.join(indent_level)))
             #indent_level.append('  ')
