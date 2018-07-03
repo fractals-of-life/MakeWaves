@@ -150,8 +150,16 @@ def add_clock(signal_array, json_file, indent_level, scale, clock_edges):
 
     """
 
-    logger.debug('+ parsing clock {0}'.format(signal_array))
+    logger.info('+ parsing clock {0}'.format(signal_array))
 
+    # Clock name format check: Cxx:(n?)clk_name
+    # Cxx, where xx is the duty cycle of the clock
+    # (n?) denotes if it is a ngeative clock or not. Example C25:nclk1,
+    # C10:clk2 etc.
+    # Wont reach here because not recognised as a clock..
+    # FICME catch C100, C1 etc type errors
+    if not(re.search(r'^C\d+',signal_array[0])):
+            raise TypeError('Incomplete clock name, see template')
     # why are we doing it this way rahter than using a dict.
     # Ans: to preserve ordering, Apparently in later versions of python this is
     # fixed.
@@ -376,29 +384,38 @@ def dump_timingtable(timing_block, json_file , indent_level):
                 #temp  = [m+n for m,n in  zip(temp,signal_array)]
                 accumulate = 1
                 output =1 
+                # temp holds the current accumulated signal,
+                # look at the next line, if it is also a marker then keep
+                # merging ..ie multiple rows collapsed into 1, combined
+                # columnwise.
                 for j,(m,n) in enumerate(zip(temp,signal_array)):
                     if (n):
                         # Skip a Spacer char on M:. This makes it easier to draw spacers
                         n = re.sub('\|','',n)
+                        # collapse rows columnwise.
                         temp[j] = m+n
+                        # extract state of wave at marker. 
                         m = re.sub(r'.*(\d+[DULHXCdulhxc]).*', r'\1', m)
                         edge = [m,m]
                         if (j < len(temp)):
                             next_state = temp[j+1]
                             next_state = re.sub(r'.*(\d+[DULHXCdulhxc]).*', r'\1', next_state)
                             edge = [m,next_state]
-
+                        # for the marked edge, we capture the prev and next
+                        # state . This dict will be used by the add_arrows
+                        # section to draw approproitate waveforms.
                         marked_edges.update({n:edge})
 
             else:
-                 if (output):
-                     json_file.write('{2}{0:25s} & {1} \\\\\n'.format(temp[0], ' '.join(temp[1:]),''.join(indent_level)))
-                     accumulate = 0
-                     output = 0 
-                 if not(accumulate):
-                     temp = signal_array
-                     accumulate = 0 
-                     output = 1 
+                if (output):
+                    json_file.write('{2}{0:25s} & {1} \\\\\n'.format(temp[0], ' '.join(temp[1:]),''.join(indent_level)))
+                    accumulate = 0
+                    output = 0 
+                # the heading row or the actual signal row
+                if not(accumulate):
+                    temp = signal_array
+                    accumulate = 0 
+                    output = 1 
 
         else:
                 if (output):
@@ -411,10 +428,11 @@ def dump_timingtable(timing_block, json_file , indent_level):
     return marked_edges
 
 # ------------------------------------------------------------------------------
-# Add notes to the end 
+# UNUSED
 # ------------------------------------------------------------------------------
-def add_notes(signal_array, json_file, indent_level, footer):
+def add_notes(signal_array, json_file, indent_level):
 
+    logger.info('+ Create notes') 
     # add the NOTES grabbed from CSV
     json_file.write('{0}foot: {{ text:\n'.format(''.join(indent_level)))
     #indent_level.append('  ')
@@ -438,7 +456,7 @@ def add_arrows(signal_array, json_file, indent_level, marked_edges, tex_blk, set
     decorations = []
     # Decode the style and type of arrow to be drawn. This is in signal_array 0
     decorations.append(re.sub('^[EL]:(.*)',r'\1', signal_array[0]))
-    # the second volumn gives additional decoration but is not used currently.
+    # the second column gives additional decoration but is not used currently.
     decorations = decorations + (signal_array[1].split(':'))
     for i in range(len(signal_array[2:])-1):
         if ((signal_array[i+3])):
@@ -641,7 +659,6 @@ else:
     print(__doc__)
     sys.exit(1)
 indent_level =[]
-footer =0 
 wave_section = 1 
 
 # this is a standard tex header to pull in all packages that are necessary.
@@ -704,27 +721,27 @@ with open(in_file , 'r') as csv_file:
             if (re.search('TITLE', signal_array[0])):
                 title = ''.join(signal_array[1:])
             elif (re.search('NOTE:', signal_array[0])):
-                if (not(footer) and re.search(':NOTE:', signal_array[0])):
-                   marked_edges = dump_timingtable(
-                                      timing_block,
-                                      json_file,
-                                      indent_level) 
-                   footer=1
-                   wave_section=0
-                   continue
+                # Reached the end of the signal block as per the structure of
+                # Excel 
+                if (re.search(':NOTE:', signal_array[0])):
+                    marked_edges = dump_timingtable(
+                                       timing_block,
+                                       json_file,
+                                       indent_level) 
+                    # Switched of waveform capture
+                    wave_section=0
+                    continue
                 # skip empty cells
                 # The assumption is notes section has 2 columns, 
-                signal_array = filter(None, signal_array)
                 notes = ''.join(signal_array[2:])
-                # becasue ',' is a delimiter in csv, a ',' used in a cells
-                # text will cause it to be quouted the comma will still be
-                # lost because of the line split reading from the csv based on
-                # ','
-                notes = re.sub('"','',notes)
+                signal_array = filter(None, signal_array)
 
                 # skip if notes are empty
                 if (len(signal_array) > 1):
-
+                    # A value of zero obviosly means that the node which was
+                    # originally there has been moved.
+                    if (signal_array[1] == '0'):
+                        raise ValueError('Unexpected node label for notes') 
                     #indent_level.append('  ')
                     # Section to add labels at the marked edges
                     # notes section with actual text, the notes are numbered
@@ -733,23 +750,38 @@ with open(in_file , 'r') as csv_file:
                     # order should be like a raster scan (left to rt, top to
                     # bottom). Leave the reordering to user for the time being.
                     # FIXME this is an afterthought, like many other things here
-                    if (re.search(r'^[A-Z]+\d+>', signal_array[1])):
+                    # Look for a labelled node of the form AB9> in an excel
+                    # cell
+                    elif (re.search(r'^[A-Z]+\d+>', signal_array[1])):
                         note_label_count += 1
                         tex_blk_note_labels = tex_blk_note_labels + '\\draw [gray, ultra thin, {{Circle[length=1pt]}}-] ($({0}.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {{\\tiny \\em {1}}} -- ($({0}.HIGH) +(-0.5,0.6)$);\n' .format(signal_array[1], note_label_count) 
 
                         tex_blk_notes = tex_blk_notes + ('{0}\item ({2}) {1}\n' .format(''.join(indent_level), notes, note_label_count))
                     else:
-                        tex_blk_notes = tex_blk_notes + ('\par{0}  {1}\n' .format(''.join(indent_level), notes))
+                        # If NOTE: appears w/o a proper marker, then it is
+                        # assumed to be a continuation of previous NOTE. but
+                        # printed as a new para. Strip of the leading ` as this
+                        # will be used to prevent XL complaingin about use of
+                        # operators.
+                        notes = re.sub(r'\`', '',notes)
+                        tex_blk_notes = tex_blk_notes + ('\subitem{0}\\hspace{{1em}}{1}\n'.format(''.join(indent_level), notes))
 
                     #indent_level.pop()
 
             # draw an arrow from edge or level    
             elif (re.search('^E:|^L:', signal_array[0])):
                 #indent_level.append('  ')
+                # the arrows are processes and drawn as and when they are
+                # endountered in the CSV. This is in the :ANNOTATE: Section.
+                # but the section check is never done.
                 tex_blk_drawedges = add_arrows(signal_array, json_file, indent_level, marked_edges, tex_blk_drawedges, set_for_non_overlap_labels)
             # draw clock markers.
             elif (re.search('^D:\|\|', signal_array[0])):
+                # the clock marks appear under the Section :CLK_MARKS: but this
+                # check is not performed.
                 clk_filter = '*'
+                # Cxx: is used for the search. so if it is missing from clock
+                # perhaps we should flag an error upfront.
                 if re.search('C\d+:',signal_array[2]):
                     clk_filter = re.sub(r'C\d+:(.*)', r'\1', signal_array[2])
                     clk_filter = re.sub(r'_', '', clk_filter)
@@ -757,6 +789,9 @@ with open(in_file , 'r') as csv_file:
 
                 tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
             elif (wave_section):
+                # Once the wave_section is dumbped, ie when :NOTES: is
+                # encountered in source, dsiable furhter signals from being
+                # recognised.
                 if (re.search('{|}', signal_array[0])):
                     add_grp(signal_array, json_file, indent_level, scale)
                     #timing_block.append(signal_array)
@@ -801,9 +836,7 @@ with open(in_file , 'r') as csv_file:
 
         #indent_level.append('  ')
         json_file.write(tex_blk_extracode_pgfopen)
-        logger.info('{0}'.format(tex_blk_drawedges))
         #tex_blk_drawedges = re.sub(r'\\draw', ''.join(indent_level)+r'\\draw', tex_blk_drawedges)
-        logger.info('{0}'.format(tex_blk_drawedges))
         json_file.write(tex_blk_drawedges)
         json_file.write(tex_blk_note_labels)
 
