@@ -402,13 +402,13 @@ def add_notes(signal_array, json_file, indent_level, footer):
 
     # add the NOTES grabbed from CSV
     json_file.write('{0}foot: {{ text:\n'.format(''.join(indent_level)))
-    indent_level.append('  ')
+    #indent_level.append('  ')
     json_file.write('{0}[\'tspan\',\n'.format(''.join(indent_level)))
-    indent_level.append('  ')
+    #indent_level.append('  ')
     json_file.write('{0}[\'tspan\', {{ class:\'h6\' , \'text-anchor\':\'start\', \'x\':\'0\'}}, \'NOTES : {1}\' ],\n'.format(''.join(indent_level), notes))
-    indent_level.pop()
+    #indent_level.pop()
     json_file.write('{0}],\n'.format(''.join(indent_level)))
-    indent_level.pop()
+    #indent_level.pop()
     json_file.write('{0}}},\n'.format(''.join(indent_level)))
 
 
@@ -672,7 +672,7 @@ tex_block=r'''
 with open(in_file , 'r') as csv_file:
     with open(out_file, 'w') as json_file:
         json_file.write(tex_block)
-        indent_level.append('  ')
+        #indent_level.append('  ')
         for i, line in enumerate(csv_file):
             
             logger.debug('Processing csv file @ line {0}'.format(i)) 
@@ -680,6 +680,9 @@ with open(in_file , 'r') as csv_file:
 
             line=line.strip()
             line=line.rstrip('\r\n')
+            # Although we read in a CSV we are using ; as a delimiter. The
+            # reason for doing so is to preserve ',' which we tend to use a lot
+            # in text
             signal_array = line.split(';')
             signal_array[0] = re.sub('_','\_',signal_array[0]);
             if (re.search('TITLE', signal_array[0])):
@@ -706,21 +709,27 @@ with open(in_file , 'r') as csv_file:
                 # skip if notes are empty
                 if (len(signal_array) > 1):
 
-                    # this is a section to add labels at the marked edges
-                    # this is the notes section with actual text
+                    #indent_level.append('  ')
+                    # Section to add labels at the marked edges
+                    # notes section with actual text, the notes are numbered
+                    # from top to bottom as they appear in the Excel. But for
+                    # readability, ie (to locate the corresponding mark) the
+                    # order should be like a raster scan (left to rt, top to
+                    # bottom). Leave the reordering to user for the time being.
                     # FIXME this is an afterthought, like many other things here
                     if (re.search(r'^[A-Z]+\d+>', signal_array[1])):
                         note_label_count += 1
                         tex_blk_note_labels = tex_blk_note_labels + '\\draw [gray, ultra thin, {{Circle[length=1pt]}}-] ($({0}.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {{\\tiny \\em {1}}} -- ($({0}.HIGH) +(-0.5,0.6)$);\n' .format(signal_array[1], note_label_count) 
 
-                        indent_level.append('  ')
                         tex_blk_notes = tex_blk_notes + ('{0}\item ({2}) {1}\n' .format(''.join(indent_level), notes, note_label_count))
                     else:
-                        indent_level.append('  ')
                         tex_blk_notes = tex_blk_notes + ('\par{0}  {1}\n' .format(''.join(indent_level), notes))
+
+                    #indent_level.pop()
 
             # draw an arrow from edge or level    
             elif (re.search('^E:|^L:', signal_array[0])):
+                #indent_level.append('  ')
                 tex_blk_drawedges = add_arrows(signal_array, json_file, indent_level, marked_edges, tex_blk_drawedges, set_for_non_overlap_labels)
             # draw clock markers.
             elif (re.search('^D:\|\|', signal_array[0])):
@@ -769,22 +778,21 @@ with open(in_file , 'r') as csv_file:
         # construct tex document
         tex_blk_extracode_pgfopen = ''; 
         tex_blk_extracode_pgfopen = tex_blk_extracode_pgfopen + ('{0}\extracode\n'.format(''.join(indent_level)))
-        indent_level.append('  ')
         tex_blk_extracode_pgfopen = tex_blk_extracode_pgfopen + ('{0}\\tablerules\n'.format(''.join(indent_level)))
         tex_blk_extracode_pgfopen = tex_blk_extracode_pgfopen + ('{0}\\begin{{pgfonlayer}}{{annotations}}\n'.format(''.join(indent_level)))
-        indent_level.append('  ')
+        #indent_level.append('  ')
         tex_blk_extracode_pgfopen = tex_blk_extracode_pgfopen + ('{0}\\tableheader{{}}{{{1}}}\n'.format(''.join(indent_level), title))
-        indent_level.pop()
 
+        #indent_level.append('  ')
         json_file.write(tex_blk_extracode_pgfopen)
-        tex_blk_drawedges = re.sub('\draw', ''.join(indent_level)+'\draw', tex_blk_drawedges)
+        logger.info('{0}'.format(tex_blk_drawedges))
+        #tex_blk_drawedges = re.sub(r'\\draw', ''.join(indent_level)+r'\\draw', tex_blk_drawedges)
+        logger.info('{0}'.format(tex_blk_drawedges))
         json_file.write(tex_blk_drawedges)
         json_file.write(tex_blk_note_labels)
 
         tex_blk_close_pgf_tikz = ('{0}\end{{pgfonlayer}}\n'.format(''.join(indent_level)))
 
-        indent_level.pop()
-        indent_level.pop()
         tex_blk_close_pgf_tikz = tex_blk_close_pgf_tikz + ('{0}\end{{tikztimingtable}}\n'.format(''.join(indent_level)))
 
         json_file.write(tex_blk_close_pgf_tikz)
@@ -792,11 +800,11 @@ with open(in_file , 'r') as csv_file:
         if (re.search('.',tex_blk_notes)):
             json_file.write('\\par {\\textsf{NOTE:}\n')
             json_file.write('{0}\\begin{{enumerate}}{{}}\n'.format(''.join(indent_level)))
-            indent_level.append('  ')
+            #indent_level.append('  ')
 
             json_file.write('{0}\\setlength{{\\leftskip}}{{2.3cm}}\n'.format(''.join(indent_level)))
             json_file.write('{0}\\sffamily\\scriptsize\n'.format(''.join(indent_level)))
-            indent_level.pop()
+            #indent_level.pop()
 
             json_file.write(tex_blk_notes)
             #indent_level.pop()
