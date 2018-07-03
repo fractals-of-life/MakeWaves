@@ -6,6 +6,7 @@ import sys
 import re
 import subprocess
 import logging
+
 if (float(sys.version_info[0]*10000)
          + float(sys.version_info[1])*100
          + float(sys.version_info[2])) < 20710:
@@ -138,24 +139,35 @@ def add_signal(signal_array, json_file, indent_level, scale):
 # generic clock signal
 # ------------------------------------------------------------------------------
 def add_clock(signal_array, json_file, indent_level, scale, clock_edges):
+    """ clock signal
+
+    signal_array    : The raw csv line
+    json_file       : output file
+    indent_level    : was used for adding a indent level to tex_blk
+    scale           : global waveform scale.
+    clock_edges     : A list of clock_edges as the clock is processed
+                        This will be used for drawing edge lines later.
+
+    """
 
     logger.debug('+ parsing clock {0}'.format(signal_array))
 
-    # why are we doiing it this way rahter than using a dict.
-    # Ans: to preserve ordering, Apparently in later versions of python this is fixed.
+    # why are we doing it this way rahter than using a dict.
+    # Ans: to preserve ordering, Apparently in later versions of python this is
+    # fixed.
     labeled_edges = [];
     if (re.search(':n[cC]',signal_array[0])):
         initial_val = 0 
     else:
         initial_val = 1 
 
-    # The way the dotted continuation is inserted below will not work for negiedge
+    # The way the dotted continuation is inserted below will not work for negedge
     # clocks.
     clk_name = re.sub(r'^.*:','',signal_array[0]) 
     clk_name = re.sub(r'\\_', '', clk_name)
 
     # Extract clock duty cycle from name. The syntax for this in the excel is
-    # C25:<clkname> 
+    # C25 : <clkname> 
     # Extract the number before C to work out the duty cycle. 
     clock_duty = signal_array[0] 
     clock_duty = re.sub(r'^C(\d+):.*', r'\1', signal_array[0])
@@ -167,24 +179,27 @@ def add_clock(signal_array, json_file, indent_level, scale, clock_edges):
 
         # Flag Source error: 
         if (not(re.search(r'\d+|G|\|', time_step))):
-            logging.error('Found undefined clock after {0} in...\n{1}'.format(signal_array[i], signal_array))
-            logging.error('    All clocks need to be uniquely marked with a cycle # number or G')
-            sys.exit(1)
+            logging.error('Found undefined clock after {0} at column {1}'.format(signal_array[i], i+1))
+            logging.error('    All clocks need to be uniquely marked with a cycle # number or G where gated')
+            raise ValueError('Unexpected or blank clock label')
 
         labeled_edges = []
 
         # how to deal with a break. the break is .5 of a full cycle or scale/2
-        # So after a break the clock will be inverted
+        # So after a break the clock will be inverted i.e half cycle.
+        # The half cycle break is deliberate to save space.
         if (re.search('^\|', time_step)):
             signal_array[i+1] = 'S'
             temp = re.sub(r'\d+([UDXLHC]).*',r'\1',signal_array[i])
-            # represent the break as high or low deending on the initial value
+            # represent the break as high or low depending on the initial value
             # of clock ie posedge or negedge.
             if (initial_val):
                 signal_array[i+1] = ';[dotted]' + '2L;'
             else:
                 signal_array[i+1] = ';[dotted]' + '2H;'
-
+            
+            # FIXME this is hardcoded to 2, and so is every ;dotted break
+            # Ideally should use scale/2
             last_mark = last_mark + 2 
 
         elif (re.search('G',time_step)):
@@ -557,7 +572,8 @@ def draw_edge_lines(signal_array, clock_edges, clk_filter, indent_level, marked_
     for i in clock_edges:
         if (re.search(clk_filter, i[0])):
             #i[0] = re.sub('N\((-?\d+.*)\).*', r'\1',i[0])
-            cycle = re.sub(r'N\(\S+?(\d+)\)', r'\1',i[0])
+            # FIXED: Issue 2:
+            cycle = re.sub(r'N\(\S+?(-?\d+)\)', r'\1',i[0])
             i[0] = re.sub(r'N\((.*\d+.*)\)', r'\1',i[0])
             tex_blk = tex_blk + '\\draw ({0}.MID)node[above=6,right=-1pt]{{\\tiny {1}}};\n'.format(i[0], cycle) 
 
@@ -821,3 +837,5 @@ with open(in_file , 'r') as csv_file:
 # waveform from that point. This is mostly attributed to the greedy matching
 # usded to figure out an S. A temporary solution is to search for 'S' with word
 # breaks to identify such occurances.
+#Issue 2:
+#  Negative cycle numbers while legitimate were not being rendered properly.        
