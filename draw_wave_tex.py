@@ -720,6 +720,10 @@ with open(in_file , 'r') as csv_file:
             signal_array[0] = re.sub('_','\_',signal_array[0]);
             if (re.search('TITLE', signal_array[0])):
                 title = ''.join(signal_array[1:])
+            elif (re.search(':SCALE:',signal_array[0])):
+                # Overwrite what is coming from the command line.
+                # this allows specific control per worksheet in batch mode.
+                scale = int(signal_array[1])
             elif (re.search('NOTE:', signal_array[0])):
                 # Reached the end of the signal block as per the structure of
                 # Excel 
@@ -873,3 +877,6 @@ with open(in_file , 'r') as csv_file:
 # breaks to identify such occurances.
 #Issue 2:
 #  Negative cycle numbers while legitimate were not being rendered properly.        
+#Issue 3:
+# Added a mechanism to control scale from CSV. This makes the intent clear and
+# mixing of sheets for batch processing.
