@@ -666,6 +666,15 @@ tex_block=r'''
 \documentclass[landscape,draft]{report}
 %\usepackage{tikz-timing}[2017/12/10]
 \usepackage{tikz-timing}[2011/01/09]
+\usepackage{hyperref}
+% This does not work, Need some debug
+\hypersetup{pdfauthor={AVN},%
+            pdftitle={PDF meta information},%
+            pdfsubject={Sample document with blind text},%
+            pdfkeywords={hyperref, PDF meta information},%
+            pdfproducer=TeXShop,%
+            pdfcreator=pdflatex}
+}
 
 %\usepackage{showframe}
 
