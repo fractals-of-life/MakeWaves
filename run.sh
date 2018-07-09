@@ -13,6 +13,8 @@ EOF
 
 set test = 0
 
+#module load python/2.7.10_rhe5_64
+
 module load texlive/2016
 @ test = $test + $? 
 echo $test
@@ -138,14 +140,14 @@ foreach WAVEFORM (`cat ./job_list`)
     pdflatex -interaction=batchmode ${WAVEFORM}.tex
     set latex_suceess = $?
   
-    set all_errors =  `grep -c ! -A4 waveforms_template.log`
-    set filtered_error = `grep ! -A4 waveforms_template.log | egrep -c 'pgf@anchor'`
+    set all_errors =  `grep -c ! -A4 ${WAVEFORM}.log`
+    set filtered_error = `grep ! -A4 ${WAVEFORM}.log | egrep -c 'pgf@anchor'`
     echo "Parsing Log file, all_errors = $all_errors filtered_Error =  $filtered_error" 
     if ( latex_success == 0  || ( $all_errors == 1 && $filtered_error == 1 )) then
           echo "tex to pdf...OK"
         else
           echo "ERROR: ${WAVEFORM}.pdf convesion failed, see log file line starting with !"
-          grep ! -A4 waveforms_template.log
+          grep ! -A4 ${WAVEFORM}.log
           exit;
     endif 
     
