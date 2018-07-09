@@ -252,9 +252,9 @@ def add_bus(signal_array, json_file, indent_level, scale):
     initial_val = signal_array[1]
     reset_fill = 0
     # Force an initial value if none defined, to prevent down stream errors.
-    if (re.search('',initial_val)):
+    if (re.search('^$',initial_val)):
         initial_val = str(scale) + 'U';
-        signal_array[1] = 'u'
+        signal_array[1] = 'U'
 
     previous = initial_val
     
@@ -352,8 +352,19 @@ def add_marker(signal_array, json_file, indent_level, scale):
 # adding groups to label waveforms
 # ------------------------------------------------------------------------------
 def add_grp(signal_array, json_file, indent_level, scale):
-    logging.warning('WARN  : Groups not implemented' )
-    pass
+    logging.debug('Adding a group sepeartor')
+    # Prevent counting of markup.
+    temp = re.sub(r'\<.*','', signal_array[0])
+    # Prevent counting of escaped chars.
+    temp = re.sub(r'\\','', temp)
+    length_str = 20 - len(temp);
+    # allowed in group name @ to specify a location, alphanumeric, \_
+    signal_array[0] = re.sub(r'(^G:[\\@\w\-]*)(<.*$)?',r'\1<b>', signal_array[0])
+    logger.warning('{0}'.format(signal_array[0]))
+    signal_array[0] = signal_array[0] + (length_str*'\_')
+    if (length_str < 1):
+        logging.warning('Too many chars in label{0} {1}'.format(length_str, temp))
+    signal_array[1:] = ['4L' for j in signal_array[1:]] 
 
 # ------------------------------------------------------------------------------
 # dump wave block
@@ -401,9 +412,10 @@ def dump_timingtable(timing_block, json_file , indent_level):
                             next_state = temp[j+1]
                             next_state = re.sub(r'.*(\d+[DULHXCdulhxc]).*', r'\1', next_state)
                             edge = [m,next_state]
+
                         # for the marked edge, we capture the prev and next
                         # state . This dict will be used by the add_arrows
-                        # section to draw approproitate waveforms.
+                        # section to draw approproitate arrows.
                         marked_edges.update({n:edge})
 
             else:
@@ -632,6 +644,20 @@ def time_offset_signal(signal_array, scale):
     #print(taps)
     #print(('WARN  : Adding offse to signal, Is it really required...?' ))
 
+
+# ------------------------------------------------------------------------------
+# 
+# ------------------------------------------------------------------------------
+def sanitize(text):
+    """Replace or escape special chars to prevent tex errors"""
+    #text = re.sub(r'[*]',r'\*',text) 
+    text = re.sub(r'~',r'\~',text) 
+    #text = re.sub(r'<',r'\textless',text) 
+    #text = re.sub(r'>',r'\textgreater',text) 
+    text = re.sub(r'\|',r'\|',text) 
+    text = re.sub(r'_',r'\\_',text) 
+    return text
+
 # ------------------------------------------------------------------------------
 # Main
 # The tex is based on the following references.
@@ -674,9 +700,12 @@ tex_block=r'''
             pdfkeywords={hyperref, PDF meta information},%
             pdfproducer=TeXShop,%
             pdfcreator=pdflatex}
-}
 
 %\usepackage{showframe}
+
+\usepackage{courier}
+%\renewcommand{\ttdefault}{courier}
+\usepackage[T1]{fontenc}
 
 %\usetikztiminglibrary[simple]{advnodes}
 \usetikztiminglibrary{advnodes}
@@ -690,7 +719,7 @@ tex_block=r'''
 \pgfdeclarelayer{background}
 \pgfdeclarelayer{annotations}
 \pgfsetlayers{background,main,annotations}
-\tikzset{timing/table/.append style={font=\ttfamily}}
+\tikzset{timing/table/.append style={font=\ttfamily\scriptsize}}
 %\tikzset{timing/font/.cd/.append style={font=\ttfamily\scriptsize}
 \tikzset{timing/d/text/.append style={font=\sffamily\scriptsize}}
 
@@ -769,7 +798,7 @@ with open(in_file , 'r') as csv_file:
                         note_label_count += 1
                         tex_blk_note_labels = tex_blk_note_labels + '\\draw [gray, ultra thin, {{Circle[length=1pt]}}-] ($({0}.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {{\\tiny \\em {1}}} -- ($({0}.HIGH) +(-0.5,0.6)$);\n' .format(signal_array[1], note_label_count) 
 
-                        tex_blk_notes = tex_blk_notes + ('{0}\item ({2}) {1}\n' .format(''.join(indent_level), notes, note_label_count))
+                        temp = ('{0}\item ({2}) {1}\n' .format(''.join(indent_level), notes, note_label_count))
                     else:
                         # If NOTE: appears w/o a proper marker, then it is
                         # assumed to be a continuation of previous NOTE. but
@@ -777,7 +806,9 @@ with open(in_file , 'r') as csv_file:
                         # will be used to prevent XL complaingin about use of
                         # operators.
                         notes = re.sub(r'\`', '',notes)
-                        tex_blk_notes = tex_blk_notes + ('\subitem{0}\\hspace{{1em}}{1}\n'.format(''.join(indent_level), notes))
+                        temp = ('\subitem{0}\\hspace{{1em}}{1}\n'.format(''.join(indent_level), notes))
+
+                    tex_blk_notes = tex_blk_notes + sanitize(temp)
 
                     #indent_level.pop()
 
@@ -805,9 +836,9 @@ with open(in_file , 'r') as csv_file:
                 # Once the wave_section is dumbped, ie when :NOTES: is
                 # encountered in source, dsiable furhter signals from being
                 # recognised.
-                if (re.search('{|}', signal_array[0])):
+                if (re.search('^G:', signal_array[0])):
                     add_grp(signal_array, json_file, indent_level, scale)
-                    #timing_block.append(signal_array)
+                    timing_block.append(signal_array)
                 elif (re.search('^B:|^b:', signal_array[0])):
                     add_bus(signal_array, json_file, indent_level, scale)
                     timing_block.append(signal_array)
