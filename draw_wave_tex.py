@@ -307,7 +307,7 @@ def add_bus(signal_array, json_file, indent_level, scale):
             signal_array[i+1] = fill + str(scale) + 'D{{{0}}}'.format(re.sub(r'_', r'\\_',tag.group(1)))
 
 
-        elif (re.search('\|', time_step)):
+        elif (re.search('^\|$', time_step)):
             # Extract type along with decoration for use in dotted.
             temp = re.sub(r'(?:\[.*\])?\;?\d+([UDXLHC]).*',r'\1',signal_array[i])
             signal_array[i+1] = ';[dotted]2' + temp + ';'
@@ -721,7 +721,8 @@ tex_block=r'''
 \pgfsetlayers{background,main,annotations}
 \tikzset{timing/table/.append style={font=\ttfamily\scriptsize}}
 %\tikzset{timing/font/.cd/.append style={font=\ttfamily\scriptsize}
-\tikzset{timing/d/text/.append style={font=\sffamily\scriptsize}}
+%\tikzset{timing/d/text/.append style={font=\sffamily\scriptsize}}
+\tikzset{timing/d/text/.append style={font=\ttfamily\scriptsize}}
 
 %Use this package for notes enumeration
 \usepackage{enumitem}
@@ -892,12 +893,12 @@ with open(in_file , 'r') as csv_file:
 
         #if (re.search('.',tex_blk_notes)):
         if (tex_blk_notes):
-            json_file.write('\\par {\\textsf{NOTE:}\n')
+            json_file.write('\\par {\\ttfamily\scriptsize{NOTE:}\n')
             json_file.write('{0}\\begin{{enumerate}}{{}}\n'.format(''.join(indent_level)))
             #indent_level.append('  ')
 
             json_file.write('{0}\\setlength{{\\leftskip}}{{2.3cm}}\n'.format(''.join(indent_level)))
-            json_file.write('{0}\\sffamily\\scriptsize\n'.format(''.join(indent_level)))
+            json_file.write('{0}\\ttfamily\\scriptsize\n'.format(''.join(indent_level)))
             #indent_level.pop()
 
             json_file.write(tex_blk_notes)
