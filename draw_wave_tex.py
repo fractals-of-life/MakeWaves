@@ -150,7 +150,7 @@ def add_clock(signal_array, json_file, indent_level, scale, clock_edges):
 
     """
 
-    logger.info('+ parsing clock {0}'.format(signal_array))
+    logger.debug('+ parsing clock {0}'.format(signal_array))
 
     # Clock name format check: Cxx:(n?)clk_name
     # Cxx, where xx is the duty cycle of the clock
@@ -255,6 +255,10 @@ def add_bus(signal_array, json_file, indent_level, scale):
     if (re.search('^$',initial_val)):
         initial_val = str(scale) + 'U';
         signal_array[1] = 'U'
+        logger.warning(
+            '+ Initial condition not defined for {0}'
+            .format(signal_array[0])
+        )
 
     previous = initial_val
     
@@ -352,7 +356,7 @@ def add_marker(signal_array, json_file, indent_level, scale):
 # adding groups to label waveforms
 # ------------------------------------------------------------------------------
 def add_grp(signal_array, json_file, indent_level, scale):
-    logging.debug('Adding a group sepeartor')
+    logging.info('Adding a group sepeartor')
     # Prevent counting of markup.
     temp = re.sub(r'\<.*','', signal_array[0])
     # Prevent counting of escaped chars.
@@ -360,7 +364,7 @@ def add_grp(signal_array, json_file, indent_level, scale):
     length_str = 20 - len(temp);
     # allowed in group name @ to specify a location, alphanumeric, \_
     signal_array[0] = re.sub(r'(^G:[\\@\w\-]*)(<.*$)?',r'\1<b>', signal_array[0])
-    logger.warning('{0}'.format(signal_array[0]))
+    logger.debug('Sanitized group header{0}'.format(signal_array[0]))
     signal_array[0] = signal_array[0] + (length_str*'\_')
     if (length_str < 1):
         logging.warning('Too many chars in label{0} {1}'.format(length_str, temp))
@@ -444,7 +448,7 @@ def dump_timingtable(timing_block, json_file , indent_level):
 # ------------------------------------------------------------------------------
 def add_notes(signal_array, json_file, indent_level):
 
-    logger.info('+ Create notes') 
+    logger.debug('+ Create notes') 
     # add the NOTES grabbed from CSV
     json_file.write('{0}foot: {{ text:\n'.format(''.join(indent_level)))
     #indent_level.append('  ')
@@ -658,6 +662,8 @@ def sanitize(text):
     text = re.sub(r'_',r'\\_',text) 
     return text
 
+
+def main():
 # ------------------------------------------------------------------------------
 # Main
 # The tex is based on the following references.
@@ -666,248 +672,254 @@ def sanitize(text):
 # tikzpgf->     this is used for grahic overlays and annotation
 # ------------------------------------------------------------------------------
 
-timing_block = [];
-tex_blk_notes = ''
-tex_blk_note_labels = ''
-tex_blk_drawedges = ''
-clock_edges = []
-# Scale will stretch the waveform horizontally.
-# changing the scale will also have an impact on how many characters can fit
-# comfortably within a bus
-scale  = 4 
-note_label_count = 0
-set_for_non_overlap_labels = set();
-if (len(sys.argv) == 4):
-    in_file = sys.argv[1]
-    out_file = sys.argv[2]
-    scale  = int(sys.argv[3])
-else:
-    print(__doc__)
-    sys.exit(1)
-indent_level =[]
-wave_section = 1 
-
-# this is a standard tex header to pull in all packages that are necessary.
-tex_block=r'''
-\documentclass[landscape,draft]{report}
-%\usepackage{tikz-timing}[2017/12/10]
-\usepackage{tikz-timing}[2011/01/09]
-\usepackage{hyperref}
-% This does not work, Need some debug
-\hypersetup{pdfauthor={AVN},%
-            pdftitle={PDF meta information},%
-            pdfsubject={Sample document with blind text},%
-            pdfkeywords={hyperref, PDF meta information},%
-            pdfproducer=TeXShop,%
-            pdfcreator=pdflatex}
-
-%\usepackage{showframe}
-
-\usepackage{courier}
-%\renewcommand{\ttdefault}{courier}
-\usepackage[T1]{fontenc}
-
-%\usetikztiminglibrary[simple]{advnodes}
-\usetikztiminglibrary{advnodes}
-\usetikzlibrary{arrows.meta}
-\pagestyle{empty}
-\def\degr{${}^\circ$}
-\usetikzlibrary{arrows}
-\usetikzlibrary{shapes}
-\usepackage[text={26cm,19cm},centering]{geometry}
-\pgfsetroundcap
-\pgfdeclarelayer{background}
-\pgfdeclarelayer{annotations}
-\pgfsetlayers{background,main,annotations}
-\tikzset{timing/table/.append style={font=\ttfamily\scriptsize}}
-%\tikzset{timing/font/.cd/.append style={font=\ttfamily\scriptsize}
-%\tikzset{timing/d/text/.append style={font=\sffamily\scriptsize}}
-\tikzset{timing/d/text/.append style={font=\ttfamily\scriptsize}}
-
-%Use this package for notes enumeration
-\usepackage{enumitem}
-\setlist[enumerate]{font=\sffamily\scriptsize, topsep=0pt,itemsep=-1ex,partopsep=1ex,parsep=1ex}
-\newlist{deflist}{description}{1}
-\setlist[deflist]{labelwidth=2cm,leftmargin=!,font=\normalfont}
-
-\makeatletter
-\newcommand{\gettikzxy}[3]{%
-    \tikz@scan@one@point\pgfutil@firstofone#1\relax
-    \edef#2{\the\pgf@x}%
-    \edef#3{\the\pgf@y}%
-}
-\makeatother
-
-\begin{document}
-\begin{tikztimingtable}[>=angle 90, timing/picture, timing/nodes/.cd,advanced,]
-'''
-with open(in_file , 'r') as csv_file:
-    with open(out_file, 'w') as json_file:
-        json_file.write(tex_block)
-        #indent_level.append('  ')
-        for i, line in enumerate(csv_file):
-            
-            logger.debug('Processing csv file @ line {0}'.format(i)) 
-            logger.debug('   line {0}'.format(line)) 
-
-            line=line.strip()
-            line=line.rstrip('\r\n')
-            # Although we read in a CSV we are using ; as a delimiter. The
-            # reason for doing so is to preserve ',' which we tend to use a lot
-            # in text
-            signal_array = line.split(';')
-            signal_array[0] = re.sub('_','\_',signal_array[0]);
-            if (re.search('TITLE', signal_array[0])):
-                title = ''.join(signal_array[1:])
-            elif (re.search(':SCALE:',signal_array[0])):
-                # Overwrite what is coming from the command line.
-                # this allows specific control per worksheet in batch mode.
-                scale = int(signal_array[1])
-            elif (re.search('NOTE:', signal_array[0])):
-                # Reached the end of the signal block as per the structure of
-                # Excel 
-                if (re.search(':NOTE:', signal_array[0])):
-                    marked_edges = dump_timingtable(
-                                       timing_block,
-                                       json_file,
-                                       indent_level) 
-                    # Switched of waveform capture
-                    wave_section=0
-                    continue
-                # skip empty cells
-                # The assumption is notes section has 2 columns, 
-                notes = ''.join(signal_array[2:])
-                signal_array = filter(None, signal_array)
-
-                # skip if notes are empty
-                if (len(signal_array) > 1):
-                    # A value of zero obviosly means that the node which was
-                    # originally there has been moved.
-                    if (signal_array[1] == '0'):
-                        raise ValueError('Unexpected node label for notes') 
-                    #indent_level.append('  ')
-                    # Section to add labels at the marked edges
-                    # notes section with actual text, the notes are numbered
-                    # from top to bottom as they appear in the Excel. But for
-                    # readability, ie (to locate the corresponding mark) the
-                    # order should be like a raster scan (left to rt, top to
-                    # bottom). Leave the reordering to user for the time being.
-                    # FIXME this is an afterthought, like many other things here
-                    # Look for a labelled node of the form AB9> in an excel
-                    # cell
-                    elif (re.search(r'^[A-Z]+\d+>', signal_array[1])):
-                        note_label_count += 1
-                        tex_blk_note_labels = tex_blk_note_labels + '\\draw [gray, ultra thin, {{Circle[length=1pt]}}-] ($({0}.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {{\\tiny \\em {1}}} -- ($({0}.HIGH) +(-0.5,0.6)$);\n' .format(signal_array[1], note_label_count) 
-
-                        temp = ('{0}\item ({2}) {1}\n' .format(''.join(indent_level), notes, note_label_count))
-                    else:
-                        # If NOTE: appears w/o a proper marker, then it is
-                        # assumed to be a continuation of previous NOTE. but
-                        # printed as a new para. Strip of the leading ` as this
-                        # will be used to prevent XL complaingin about use of
-                        # operators.
-                        notes = re.sub(r'\`', '',notes)
-                        temp = ('\subitem{0}\\hspace{{1em}}{1}\n'.format(''.join(indent_level), notes))
-
-                    tex_blk_notes = tex_blk_notes + sanitize(temp)
-
-                    #indent_level.pop()
-
-            # draw an arrow from edge or level    
-            elif (re.search('^E:|^L:', signal_array[0])):
-                #indent_level.append('  ')
-                # the arrows are processes and drawn as and when they are
-                # endountered in the CSV. This is in the :ANNOTATE: Section.
-                # but the section check is never done.
-                tex_blk_drawedges = add_arrows(signal_array, json_file, indent_level, marked_edges, tex_blk_drawedges, set_for_non_overlap_labels)
-            # draw clock markers.
-            elif (re.search('^D:\|\|', signal_array[0])):
-                # the clock marks appear under the Section :CLK_MARKS: but this
-                # check is not performed.
-                clk_filter = '*'
-                # Cxx: is used for the search. so if it is missing from clock
-                # perhaps we should flag an error upfront.
-                if re.search('C\d+:',signal_array[2]):
-                    clk_filter = re.sub(r'C\d+:(.*)', r'\1', signal_array[2])
-                    clk_filter = re.sub(r'_', '', clk_filter)
-                    logger.debug('{0}'.format(clk_filter))
-
-                tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
-            elif (wave_section):
-                # Once the wave_section is dumbped, ie when :NOTES: is
-                # encountered in source, dsiable furhter signals from being
-                # recognised.
-                if (re.search('^G:', signal_array[0])):
-                    add_grp(signal_array, json_file, indent_level, scale)
-                    timing_block.append(signal_array)
-                elif (re.search('^B:|^b:', signal_array[0])):
-                    add_bus(signal_array, json_file, indent_level, scale)
-                    timing_block.append(signal_array)
-                elif (re.search('^M:', signal_array[0])):
-                    add_marker(signal_array, json_file, indent_level, scale)
-                    timing_block.append(signal_array)
-                elif (re.search(r'(?i)^C\d+:', signal_array[0])):
-                    add_clock(signal_array,json_file, indent_level, scale, clock_edges)
-                    timing_block.append(signal_array)
-                elif (re.search('\S+', signal_array[0])):
-                    add_signal(signal_array,json_file, indent_level, scale)
-                    timing_block.append(signal_array)
-                else:
-                    #json_file.write('{0}\\\\\n'.format(''.join(indent_level)))
-                    timing_block.append('\\' )
-                # Here we handling the decoration of signal name, namely italics and
-                # bold  
-                signal_array[0] = re.sub(r'(.*)<i>',r'\\textit{\1}', signal_array[0]) 
-                signal_array[0] = re.sub(r'(.*)<b>',r'\\textbf{\1}', signal_array[0]) 
-                signal_array[0] = re.sub(r'(.*)<u>',r'\\underline{\1}', signal_array[0]) 
-                if (re.search(r'<.0.\d+>', signal_array[0])):
-                    # Undo the last signal push, The signal is still in signal_array.
-                    timing_block.pop()
-                    time_offset_signal(signal_array, scale)
-                    timing_block.append(signal_array)
-
-
-        # add the title grabbed from CSV
-        
-        # add the NOTES grabbed from CSV
-
-        # construct tex document
-        tex_blk_extracode_pgfopen = ''; 
-        tex_blk_extracode_pgfopen = tex_blk_extracode_pgfopen + ('{0}\extracode\n'.format(''.join(indent_level)))
-        tex_blk_extracode_pgfopen = tex_blk_extracode_pgfopen + ('{0}\\tablerules\n'.format(''.join(indent_level)))
-        tex_blk_extracode_pgfopen = tex_blk_extracode_pgfopen + ('{0}\\begin{{pgfonlayer}}{{annotations}}\n'.format(''.join(indent_level)))
-        #indent_level.append('  ')
-        tex_blk_extracode_pgfopen = tex_blk_extracode_pgfopen + ('{0}\\tableheader{{}}{{{1}}}\n'.format(''.join(indent_level), title))
-
-        #indent_level.append('  ')
-        json_file.write(tex_blk_extracode_pgfopen)
-        #tex_blk_drawedges = re.sub(r'\\draw', ''.join(indent_level)+r'\\draw', tex_blk_drawedges)
-        json_file.write(tex_blk_drawedges)
-        json_file.write(tex_blk_note_labels)
-
-        tex_blk_close_pgf_tikz = ('{0}\end{{pgfonlayer}}\n'.format(''.join(indent_level)))
-
-        tex_blk_close_pgf_tikz = tex_blk_close_pgf_tikz + ('{0}\end{{tikztimingtable}}\n'.format(''.join(indent_level)))
-
-        json_file.write(tex_blk_close_pgf_tikz)
-
-        #if (re.search('.',tex_blk_notes)):
-        if (tex_blk_notes):
-            json_file.write('\\par {\\ttfamily\scriptsize{NOTE:}\n')
-            json_file.write('{0}\\begin{{enumerate}}{{}}\n'.format(''.join(indent_level)))
+    timing_block = [];
+    tex_blk_notes = ''
+    tex_blk_note_labels = ''
+    tex_blk_drawedges = ''
+    clock_edges = []
+    # Scale will stretch the waveform horizontally.
+    # changing the scale will also have an impact on how many characters can fit
+    # comfortably within a bus
+    scale  = 4 
+    note_label_count = 0
+    set_for_non_overlap_labels = set();
+    if (len(sys.argv) == 4):
+        in_file = sys.argv[1]
+        out_file = sys.argv[2]
+        scale  = int(sys.argv[3])
+    else:
+        print(__doc__)
+        sys.exit(1)
+    indent_level =[]
+    wave_section = 1 
+    
+    # this is a standard tex header to pull in all packages that are necessary.
+    tex_block=r'''
+    \documentclass[landscape,draft]{report}
+    %\usepackage{tikz-timing}[2017/12/10]
+    \usepackage{tikz-timing}[2011/01/09]
+    \usepackage{hyperref}
+    % This does not work, Need some debug
+    \hypersetup{pdfauthor={AVN},%
+                pdftitle={PDF meta information},%
+                pdfsubject={Sample document with blind text},%
+                pdfkeywords={hyperref, PDF meta information},%
+                pdfproducer=TeXShop,%
+                pdfcreator=pdflatex}
+    
+    %\usepackage{showframe}
+    
+    \usepackage{courier}
+    %\renewcommand{\ttdefault}{courier}
+    \usepackage[T1]{fontenc}
+    
+    %\usetikztiminglibrary[simple]{advnodes}
+    \usetikztiminglibrary{advnodes}
+    \usetikzlibrary{arrows.meta}
+    \pagestyle{empty}
+    \def\degr{${}^\circ$}
+    \usetikzlibrary{arrows}
+    \usetikzlibrary{shapes}
+    \usepackage[text={26cm,19cm},centering]{geometry}
+    \pgfsetroundcap
+    \pgfdeclarelayer{background}
+    \pgfdeclarelayer{annotations}
+    \pgfsetlayers{background,main,annotations}
+    \tikzset{timing/table/.append style={font=\ttfamily\scriptsize}}
+    %\tikzset{timing/font/.cd/.append style={font=\ttfamily\scriptsize}
+    %\tikzset{timing/d/text/.append style={font=\sffamily\scriptsize}}
+    \tikzset{timing/d/text/.append style={font=\ttfamily\scriptsize}}
+    
+    %Use this package for notes enumeration
+    \usepackage{enumitem}
+    \setlist[enumerate]{font=\sffamily\scriptsize, topsep=0pt,itemsep=-1ex,partopsep=1ex,parsep=1ex}
+    \newlist{deflist}{description}{1}
+    \setlist[deflist]{labelwidth=2cm,leftmargin=!,font=\normalfont}
+    
+    \makeatletter
+    \newcommand{\gettikzxy}[3]{%
+        \tikz@scan@one@point\pgfutil@firstofone#1\relax
+        \edef#2{\the\pgf@x}%
+        \edef#3{\the\pgf@y}%
+    }
+    \makeatother
+    
+    \begin{document}
+    \begin{tikztimingtable}[>=angle 90, timing/picture, timing/nodes/.cd,advanced,]
+    '''
+    with open(in_file , 'r') as csv_file:
+        with open(out_file, 'w') as json_file:
+            json_file.write(tex_block)
             #indent_level.append('  ')
+            for i, line in enumerate(csv_file):
+                
+                logger.debug('Processing csv file @ line {0}'.format(i)) 
+                logger.debug('   line {0}'.format(line)) 
+    
+                line=line.strip()
+                line=line.rstrip('\r\n')
+                # Although we read in a CSV we are using ; as a delimiter. The
+                # reason for doing so is to preserve ',' which we tend to use a lot
+                # in text
+                signal_array = line.split(';')
+                signal_array[0] = re.sub('_','\_',signal_array[0]);
+                if (re.search('TITLE', signal_array[0])):
+                    title = ''.join(signal_array[1:])
+                elif (re.search(':SCALE:',signal_array[0])):
+                    # Overwrite what is coming from the command line.
+                    # this allows specific control per worksheet in batch mode.
+                    scale = int(signal_array[1])
+                elif (re.search('NOTE:', signal_array[0])):
+                    # Reached the end of the signal block as per the structure of
+                    # Excel 
+                    if (re.search(':NOTE:', signal_array[0])):
+                        marked_edges = dump_timingtable(
+                                           timing_block,
+                                           json_file,
+                                           indent_level) 
+                        # Switched of waveform capture
+                        wave_section=0
+                        continue
+                    # skip empty cells
+                    # The assumption is notes section has 2 columns, 
+                    notes = ''.join(signal_array[2:])
+                    signal_array = filter(None, signal_array)
+    
+                    # skip if notes are empty
+                    if (len(signal_array) > 1):
+                        # A value of zero obviosly means that the node which was
+                        # originally there has been moved.
+                        if (signal_array[1] == '0'):
+                            raise ValueError('Unexpected node label for notes') 
+                        #indent_level.append('  ')
+                        # Section to add labels at the marked edges
+                        # notes section with actual text, the notes are numbered
+                        # from top to bottom as they appear in the Excel. But for
+                        # readability, ie (to locate the corresponding mark) the
+                        # order should be like a raster scan (left to rt, top to
+                        # bottom). Leave the reordering to user for the time being.
+                        # FIXME this is an afterthought, like many other things here
+                        # Look for a labelled node of the form AB9> in an excel
+                        # cell
+                        elif (re.search(r'^[A-Z]+\d+>', signal_array[1])):
+                            note_label_count += 1
+                            tex_blk_note_labels = tex_blk_note_labels + '\\draw [gray, ultra thin, {{Circle[length=1pt]}}-] ($({0}.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {{\\tiny \\em {1}}} -- ($({0}.HIGH) +(-0.5,0.6)$);\n' .format(signal_array[1], note_label_count) 
+    
+                            temp = ('{0}\item ({2}) {1}\n' .format(''.join(indent_level), notes, note_label_count))
+                        else:
+                            # If NOTE: appears w/o a proper marker, then it is
+                            # assumed to be a continuation of previous NOTE. but
+                            # printed as a new para. Strip of the leading ` as this
+                            # will be used to prevent XL complaingin about use of
+                            # operators.
+                            notes = re.sub(r'\`', '',notes)
+                            temp = ('\subitem{0}\\hspace{{1em}}{1}\n'.format(''.join(indent_level), notes))
+    
+                        tex_blk_notes = tex_blk_notes + sanitize(temp)
+    
+                        #indent_level.pop()
+    
+                # draw an arrow from edge or level    
+                elif (re.search('^E:|^L:', signal_array[0])):
+                    #indent_level.append('  ')
+                    # the arrows are processes and drawn as and when they are
+                    # endountered in the CSV. This is in the :ANNOTATE: Section.
+                    # but the section check is never done.
+                    tex_blk_drawedges = add_arrows(signal_array, json_file, indent_level, marked_edges, tex_blk_drawedges, set_for_non_overlap_labels)
+                # draw clock markers.
+                elif (re.search('^D:\|\|', signal_array[0])):
+                    # the clock marks appear under the Section :CLK_MARKS: but this
+                    # check is not performed.
+                    clk_filter = '*'
+                    # Cxx: is used for the search. so if it is missing from clock
+                    # perhaps we should flag an error upfront.
+                    if re.search('C\d+:',signal_array[2]):
+                        clk_filter = re.sub(r'C\d+:(.*)', r'\1', signal_array[2])
+                        clk_filter = re.sub(r'_', '', clk_filter)
+                        logger.debug('{0}'.format(clk_filter))
+    
+                    tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
+                elif (wave_section):
+                    # Once the wave_section is dumbped, ie when :NOTES: is
+                    # encountered in source, dsiable furhter signals from being
+                    # recognised.
+                    if (re.search('^G:', signal_array[0])):
+                        add_grp(signal_array, json_file, indent_level, scale)
+                        # Add a spacer row above a group for readability
+                        timing_block.append('' * len(signal_array))
+                        timing_block.append(signal_array)
+                    elif (re.search('^B:|^b:', signal_array[0])):
+                        add_bus(signal_array, json_file, indent_level, scale)
+                        timing_block.append(signal_array)
+                    elif (re.search('^M:', signal_array[0])):
+                        add_marker(signal_array, json_file, indent_level, scale)
+                        timing_block.append(signal_array)
+                    elif (re.search(r'(?i)^C\d+:', signal_array[0])):
+                        add_clock(signal_array,json_file, indent_level, scale, clock_edges)
+                        timing_block.append(signal_array)
+                    elif (re.search('\S+', signal_array[0])):
+                        add_signal(signal_array,json_file, indent_level, scale)
+                        timing_block.append(signal_array)
+                    else:
+                        #json_file.write('{0}\\\\\n'.format(''.join(indent_level)))
+                        timing_block.append('\\' )
+                    # Here we handling the decoration of signal name, namely italics and
+                    # bold  
+                    signal_array[0] = re.sub(r'(.*)<i>',r'\\textit{\1}', signal_array[0]) 
+                    signal_array[0] = re.sub(r'(.*)<b>',r'\\textbf{\1}', signal_array[0]) 
+                    signal_array[0] = re.sub(r'(.*)<u>',r'\\underline{\1}', signal_array[0]) 
+                    if (re.search(r'<.0.\d+>', signal_array[0])):
+                        # Undo the last signal push, The signal is still in signal_array.
+                        timing_block.pop()
+                        time_offset_signal(signal_array, scale)
+                        timing_block.append(signal_array)
+    
+    
+            # add the title grabbed from CSV
+            
+            # add the NOTES grabbed from CSV
+    
+            # construct tex document
+            tex_blk_extracode_pgfopen = ''; 
+            tex_blk_extracode_pgfopen = tex_blk_extracode_pgfopen + ('{0}\extracode\n'.format(''.join(indent_level)))
+            tex_blk_extracode_pgfopen = tex_blk_extracode_pgfopen + ('{0}\\tablerules\n'.format(''.join(indent_level)))
+            tex_blk_extracode_pgfopen = tex_blk_extracode_pgfopen + ('{0}\\begin{{pgfonlayer}}{{annotations}}\n'.format(''.join(indent_level)))
+            #indent_level.append('  ')
+            tex_blk_extracode_pgfopen = tex_blk_extracode_pgfopen + ('{0}\\tableheader{{}}{{{1}}}\n'.format(''.join(indent_level), title))
+    
+            #indent_level.append('  ')
+            json_file.write(tex_blk_extracode_pgfopen)
+            #tex_blk_drawedges = re.sub(r'\\draw', ''.join(indent_level)+r'\\draw', tex_blk_drawedges)
+            json_file.write(tex_blk_drawedges)
+            json_file.write(tex_blk_note_labels)
+    
+            tex_blk_close_pgf_tikz = ('{0}\end{{pgfonlayer}}\n'.format(''.join(indent_level)))
+    
+            tex_blk_close_pgf_tikz = tex_blk_close_pgf_tikz + ('{0}\end{{tikztimingtable}}\n'.format(''.join(indent_level)))
+    
+            json_file.write(tex_blk_close_pgf_tikz)
+    
+            #if (re.search('.',tex_blk_notes)):
+            if (tex_blk_notes):
+                json_file.write('\\par {\\ttfamily\scriptsize{NOTE:}\n')
+                json_file.write('{0}\\begin{{enumerate}}{{}}\n'.format(''.join(indent_level)))
+                #indent_level.append('  ')
+    
+                json_file.write('{0}\\setlength{{\\leftskip}}{{2.3cm}}\n'.format(''.join(indent_level)))
+                json_file.write('{0}\\ttfamily\\scriptsize\n'.format(''.join(indent_level)))
+                #indent_level.pop()
+    
+                json_file.write(tex_blk_notes)
+                #indent_level.pop()
+    
+                json_file.write('{0}\end{{enumerate}}\n'.format(''.join(indent_level)))
+    
+            json_file.write('}}{0}\end{{document}}\n'.format(''.join(indent_level)))
+    
 
-            json_file.write('{0}\\setlength{{\\leftskip}}{{2.3cm}}\n'.format(''.join(indent_level)))
-            json_file.write('{0}\\ttfamily\\scriptsize\n'.format(''.join(indent_level)))
-            #indent_level.pop()
-
-            json_file.write(tex_blk_notes)
-            #indent_level.pop()
-
-            json_file.write('{0}\end{{enumerate}}\n'.format(''.join(indent_level)))
-
-        json_file.write('}}{0}\end{{document}}\n'.format(''.join(indent_level)))
-
+if __name__=="__main__":
+    logger.info('{0}'.format(__name__))
+    main()
 #-------------------------------------------------------------------------------
 # Fixed bugs
 #-------------------------------------------------------------------------------
