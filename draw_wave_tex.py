@@ -368,7 +368,7 @@ def add_grp(signal_array, json_file, indent_level, scale):
     signal_array[0] = signal_array[0] + (length_str*'\_')
     if (length_str < 1):
         logging.warning('Too many chars in label{0} {1}'.format(length_str, temp))
-    signal_array[1:] = ['4L' for j in signal_array[1:]] 
+    signal_array[1:] = [ str(scale) +'L' for j in signal_array[1:]] 
 
 # ------------------------------------------------------------------------------
 # dump wave block
@@ -769,6 +769,19 @@ def main():
                     # Overwrite what is coming from the command line.
                     # this allows specific control per worksheet in batch mode.
                     scale = int(signal_array[1])
+
+                    # Embed :END: on any column in the row of :SCALE:
+                    # stop rendering waveform beyond the column.
+                    # The default method is to look for empty cells, which is
+                    # partially encoded in the number of csv fields writterout
+                    # but the csvwriter method. But this it not very reliable.
+                    # Hence the inclusion of :END: as a reliable method.
+                    if ':END:' in signal_array:
+                       end =signal_array.index(':END:') 
+                       logging.info('Found END at column {0}, Will only draw till End.'.format(end))
+                    else:
+                       end = len(signal_array)
+                       logging.warning('No :END: found , Draw waves till first empty column cell ({0} )in clock row.'.format(end))
                 elif (re.search('NOTE:', signal_array[0])):
                     # Reached the end of the signal block as per the structure of
                     # Excel 
@@ -840,6 +853,9 @@ def main():
     
                     tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
                 elif (wave_section):
+                    # Issue 4:
+                    # process only till end marker for the wave section.
+                    signal_array = signal_array[0:end+1]
                     # Once the wave_section is dumbped, ie when :NOTES: is
                     # encountered in source, dsiable furhter signals from being
                     # recognised.
@@ -900,8 +916,9 @@ def main():
             json_file.write(tex_blk_close_pgf_tikz)
     
             #if (re.search('.',tex_blk_notes)):
+            # always print the header
+            json_file.write('\\par {\\ttfamily\scriptsize{NOTE:}\n')
             if (tex_blk_notes):
-                json_file.write('\\par {\\ttfamily\scriptsize{NOTE:}\n')
                 json_file.write('{0}\\begin{{enumerate}}{{}}\n'.format(''.join(indent_level)))
                 #indent_level.append('  ')
     
@@ -933,3 +950,5 @@ if __name__=="__main__":
 #Issue 3:
 # Added a mechanism to control scale from CSV. This makes the intent clear and
 # mixing of sheets for batch processing.
+#Issue 4:
+#Added a mechanism to control right bound for drawn columns.
