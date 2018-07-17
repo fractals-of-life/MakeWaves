@@ -95,10 +95,8 @@ def add_signal(signal_array, json_file, indent_level, scale):
     if ( not(re.search('^[01xX]', signal_array[1])) ):
         signal_array[1] = str(scale) +'X'
         logger.warning(
-            '+ Initial condition not defined for {0}'
-            .format(signal_array[0])
-        )
-
+                '+ Initial condition not defined for {0}. Force invalid \'x\''
+                .format(signal_array[0])) 
     for i,time_step in enumerate(signal_array[1:]):
 
         logger.debug('|---:{0} {1}'.format(i, time_step))
@@ -256,7 +254,7 @@ def add_bus(signal_array, json_file, indent_level, scale):
         initial_val = str(scale) + 'U';
         signal_array[1] = 'U'
         logger.warning(
-            '+ Initial condition not defined for {0}'
+            '+ Initial condition not defined for {0}. Force Undef'
             .format(signal_array[0])
         )
 
@@ -365,7 +363,7 @@ def add_grp(signal_array, json_file, indent_level, scale):
     # allowed in group name @ to specify a location, alphanumeric, \_
     signal_array[0] = re.sub(r'(^G:[\\@\w\-]*)(<.*$)?',r'\1<b>', signal_array[0])
     logger.debug('Sanitized group header{0}'.format(signal_array[0]))
-    signal_array[0] = signal_array[0] + (length_str*'\_')
+    signal_array[0] = (length_str*'\_') + signal_array[0] 
     if (length_str < 1):
         logging.warning('Too many chars in label{0} {1}'.format(length_str, temp))
     signal_array[1:] = [ str(scale) +'L' for j in signal_array[1:]] 
@@ -423,6 +421,8 @@ def dump_timingtable(timing_block, json_file , indent_level):
                         marked_edges.update({n:edge})
 
             else:
+                # The merged prev marker row and signal not printed yet.
+                # But now a new signal has been found hence no more merging.
                 if (output):
                     json_file.write('{2}{0:25s} & {1} \\\\\n'.format(temp[0], ' '.join(temp[1:]),''.join(indent_level)))
                     accumulate = 0
@@ -435,6 +435,9 @@ def dump_timingtable(timing_block, json_file , indent_level):
 
         else:
                 if (output):
+                # Not a signal but empty line
+                # The merged prev marker row and signal not printed yet.
+                # But now a new signal has been found hence no more merging.
                     json_file.write('{2}{0:25s} & {1} \\\\\n'.format(temp[0], ' '.join(temp[1:]),''.join(indent_level)))
 
                 output = 0
@@ -662,6 +665,34 @@ def sanitize(text):
     text = re.sub(r'_',r'\\_',text) 
     return text
 
+def check_spacers(raw_signal_array, set_of_spacer_marks):
+    """Build an image of spacer marks while scanning top to bottom
+
+       The assumption is that the top row will always contain the required
+       spacer. The entire column must contain spacers but it is easy to make
+       the mistake of not including a spacer in a later row. Force a spacer and
+       emit a wanring so reduce design cycles due to misalignment
+    """
+                       
+    temp =[i for i, state in enumerate(raw_signal_array)
+            if re.search('^\|$', state)]
+    # Build the set of spacers for uniformity in rendering.
+    # if a space is missedin Excel, it will be forced on
+    # the wave.
+    if any((set_of_spacer_marks - set(temp))):
+        logging.warning('{1} Possible missing spacers, Wave will be overwritten with spacers at columns-{0}'.format(sorted(set_of_spacer_marks), raw_signal_array[0]))
+    set_of_spacer_marks = set_of_spacer_marks | set(temp)
+    return set_of_spacer_marks
+
+def sanitize_spacers(raw_signal_array, set_of_spacer_marks):
+    """Force spacer marks on raw signal, ie from CSV such that the redering
+    would be correct and alligned. A warning would have been issued in the
+    check phase
+    """
+    # Force spacer marks
+    for spacer_index in set_of_spacer_marks:
+        raw_signal_array[spacer_index] = '|';
+    return raw_signal_array
 
 def main():
 # ------------------------------------------------------------------------------
@@ -683,6 +714,7 @@ def main():
     scale  = 4 
     note_label_count = 0
     set_for_non_overlap_labels = set();
+    set_of_spacer_marks = set()
     if (len(sys.argv) == 4):
         in_file = sys.argv[1]
         out_file = sys.argv[2]
@@ -763,6 +795,7 @@ def main():
                 # in text
                 signal_array = line.split(';')
                 signal_array[0] = re.sub('_','\_',signal_array[0]);
+                end = len(signal_array)
                 if (re.search('TITLE', signal_array[0])):
                     title = ''.join(signal_array[1:])
                 elif (re.search(':SCALE:',signal_array[0])):
@@ -865,15 +898,21 @@ def main():
                         timing_block.append('' * len(signal_array))
                         timing_block.append(signal_array)
                     elif (re.search('^B:|^b:', signal_array[0])):
+                        set_of_spacer_marks = check_spacers(signal_array, set_of_spacer_marks)
+                        signal_array = sanitize_spacers(signal_array, set_of_spacer_marks)
                         add_bus(signal_array, json_file, indent_level, scale)
                         timing_block.append(signal_array)
                     elif (re.search('^M:', signal_array[0])):
                         add_marker(signal_array, json_file, indent_level, scale)
                         timing_block.append(signal_array)
                     elif (re.search(r'(?i)^C\d+:', signal_array[0])):
+                        set_of_spacer_marks = check_spacers(signal_array, set_of_spacer_marks)
+                        signal_array = sanitize_spacers(signal_array, set_of_spacer_marks)
                         add_clock(signal_array,json_file, indent_level, scale, clock_edges)
                         timing_block.append(signal_array)
                     elif (re.search('\S+', signal_array[0])):
+                        set_of_spacer_marks = check_spacers(signal_array, set_of_spacer_marks)
+                        signal_array = sanitize_spacers(signal_array, set_of_spacer_marks)
                         add_signal(signal_array,json_file, indent_level, scale)
                         timing_block.append(signal_array)
                     else:
@@ -952,3 +991,6 @@ if __name__=="__main__":
 # mixing of sheets for batch processing.
 #Issue 4:
 #Added a mechanism to control right bound for drawn columns.
+#Issue 5:
+# Sapacer need to be uniform. Testing and automating this helps reduce design
+# cycles. Implmented methods check_spacers and sanitize_spacers.
