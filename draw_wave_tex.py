@@ -602,7 +602,7 @@ def draw_edge_lines(signal_array, clock_edges, clk_filter, indent_level, marked_
 
     logger.debug('+ Add clock cycle markers @ clock edge for {0}'.format(clk_filter))
     tex_blk = tex_blk + '\\begin{scope}[semitransparent,ultra thin]\n'
-    tex_blk = tex_blk + '\\vertlines[gray]{{{0}}}\n'.format(','.join(str(i[1]) for i in clock_edges))
+    tex_blk = tex_blk + '\\vertlines[gray]{{{0}}}\n'.format(','.join(str(i[1]) for i in clock_edges if (re.search(clk_filter, i[0]))))
     #%\vertlines[blue]{}
     tex_blk = tex_blk + '\end{scope}\n'
     cycle = ''
@@ -628,6 +628,7 @@ def draw_edge_lines(signal_array, clock_edges, clk_filter, indent_level, marked_
 # and last, add the label from excel.
 def draw_dimension_lines(start, end, t_label, offset):
 
+    t_label = re.sub(r'_', r'\_', t_label)
     logger.debug('+ Add line with label {0}'.format(t_label))
     tex_blk = ''
     tex_blk = tex_blk + '\gettikzxy{{({0}.MID)}}{{\sx}}{{\sy}}\n'.format(start)
