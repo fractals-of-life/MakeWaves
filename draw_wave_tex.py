@@ -28,23 +28,23 @@ logger = logging.getLogger(__name__)
 # o Tex timing is clock pulse wide.
 # ------------------------------------------------------------------------------
 def restore_after_spacer(state_min1, state_min2):
-    """Return the state before spacer as continuation
+    """Return the state before spacer for continuation of label,colour etc
 
-    state_min1 : Holds the sated from the renderd signal imm preceeding current.
+    state_min1 : Holds the sate from the renderd signal imm preceeding current.
     state_min2 : Holds the state 2 steps ahead of current.
 
     Note that the backward search is to establish continuation, becaue by
-    nature in the XL we only capture Value changes. So when a break is placed
+    nature in the XL we only capture Value changes. When a break is placed
     in the waveform we need to performa  backward search to establish the
     last stable value.
     """
     logger.debug('t-2 : {0} t-1 : {1}'.
-                format(state_min2, state_min1) 
-                )
+            format(state_min2, state_min1) 
+            )
 
     wave_state = '';
     # Bug Fix: Issue 1.
-    # Search backwards. If t-1 was a spacer, then use t-2 for continuation
+    # Search backwards. If t-1 was a spacer too, then use t-2 for continuation
     if (re.search('\bS\b|\[dotted\]', state_min1)):
         wave_state = state_min2 
     else:
@@ -76,13 +76,13 @@ def add_signal(signal_array, json_file, indent_level, scale):
                     passed down from the command line of this script. 
 
 
-    The following wxpansion will be done assuming Scale = 4
+    The following default expansion will be done assuming Scale = 4
     0    -> 4L
     1    -> 4H
     X/x  -> 4X
     G    -> 4*0.03T 4*0.97T; A glitch showing up on last level., where T is
             Toggle in TEX
-    0.x  -> 0.25*4U 0.75*4L; an undef lasting 0.25 of a cycle followed by Hig;  
+    0.x  -> 0.25*4U 0.75*4L; an undef lasting 0.25 of a cycle followed by High;  
     -0.x -> 0.25*4U 0.75*4H; an undef lasting 0.25 of a cycle followed by Low;
     |    -> ;dotted]2<val_b4_break> ; draws a dotted continuation, L H, U etc
     """
@@ -108,8 +108,8 @@ def add_signal(signal_array, json_file, indent_level, scale):
         elif (re.search('G',time_step)):
             signal_array[i+1] = str(scale*.03) + 'T' + str(scale*.97) + 'T'
         # FIXME: New not in documentation
-        # this is a simple encoding. 0.x will indicate a undef to 1 transition which
-        # is not full cycle, and -0.x will show a undef to 0 transition
+        # this is a simple encoding. 0.x will indicate an undef to 1 transition
+        # which is not full cycle, and -0.x will show a undef to 0 transition
         # can potenitally be expanded to use x to decide proportion.
         # The combo indication is fixed to 0.25
         elif (re.search(r'0.\d',time_step)):
@@ -128,7 +128,7 @@ def add_signal(signal_array, json_file, indent_level, scale):
         else:
             # allow us to deal with a value change format by searching
             # backwards to find the last change from the current time step. The
-            # search is to be perfromed on the waveform rendered so far.
+            # search is to be performed on the waveform rendered so far.
             signal_array[i+1] = restore_after_spacer(signal_array[i],signal_array[i-1]) 
 
     return signal_array
@@ -155,7 +155,7 @@ def add_clock(signal_array, json_file, indent_level, scale, clock_edges):
     # (n?) denotes if it is a ngeative clock or not. Example C25:nclk1,
     # C10:clk2 etc.
     # Wont reach here because not recognised as a clock..
-    # FICME catch C100, C1 etc type errors
+    # FIXME catch C100, C1 etc type errors
     if not(re.search(r'^C\d+',signal_array[0])):
             raise TypeError('Incomplete clock name, see template')
     # why are we doing it this way rahter than using a dict.
@@ -273,10 +273,13 @@ def add_bus(signal_array, json_file, indent_level, scale):
             signal_array[i+1] = ';' + str(scale) + 'X'
         elif (re.search('^[uU]$',time_step)):
             signal_array[i+1] = ';' + str(scale) + 'U'
-        # Here , if tag is non empty we assume a valid dtat value is defined.
+        # Here , if tag is non empty we assume a valid data value is defined.
         elif (tag):
             if tag.group(2):
                 color = tag.group(3).split(':') # unused
+                # Only 4 colours defined. Best to control this to prevent
+                # standard issue sunglasses.
+                # TODO: Check grey scale weights.
                 if (re.search('o', color[1])):
                     fill = '[fill={rgb,255:red,255; green,204; blue,153}]'
                     reset_fill = 1
@@ -342,7 +345,12 @@ def add_bus(signal_array, json_file, indent_level, scale):
 # ------------------------------------------------------------------------------
 # add a marker/spacer line 
 # ------------------------------------------------------------------------------
-def add_marker(signal_array, json_file, indent_level, scale):
+def add_marker(
+        signal_array,
+        json_file,
+        indent_level,
+        scale
+        ):
     for i,time_step in enumerate(signal_array[1:]):
         # FIXME : Check why is there a '^' . has it seeped in from a preve
         # version
@@ -353,7 +361,12 @@ def add_marker(signal_array, json_file, indent_level, scale):
 # ------------------------------------------------------------------------------
 # adding groups to label waveforms
 # ------------------------------------------------------------------------------
-def add_grp(signal_array, json_file, indent_level, scale):
+def add_grp(
+        signal_array,
+        json_file,
+        indent_level,
+        scale
+        ):
     logging.info('Adding a group sepeartor')
     # Prevent counting of markup.
     temp = re.sub(r'\<.*','', signal_array[0])
@@ -370,8 +383,13 @@ def add_grp(signal_array, json_file, indent_level, scale):
 
 # ------------------------------------------------------------------------------
 # dump wave block
+# FIXME: This bit is an appalling mess. Focus! Best rewritten.
 # ------------------------------------------------------------------------------
-def dump_timingtable(timing_block, json_file , indent_level): 
+def dump_timingtable(
+        timing_block,
+        json_file ,
+        indent_level
+        ): 
     # to allow merging of the markers which are always placed below the signal 
     i = 0;
     accumulate = 0
@@ -449,7 +467,10 @@ def dump_timingtable(timing_block, json_file , indent_level):
 # ------------------------------------------------------------------------------
 # UNUSED
 # ------------------------------------------------------------------------------
-def add_notes(signal_array, json_file, indent_level):
+def add_notes(signal_array,
+        json_file,
+        indent_level
+        ):
 
     logger.debug('+ Create notes') 
     # add the NOTES grabbed from CSV
@@ -467,7 +488,14 @@ def add_notes(signal_array, json_file, indent_level):
 # ------------------------------------------------------------------------------
 # Add arrows:
 # ------------------------------------------------------------------------------
-def add_arrows(signal_array, json_file, indent_level, marked_edges, tex_blk, set_for_non_overlap_labels):
+def add_arrows(
+        signal_array, 
+        json_file, 
+        indent_level, 
+        marked_edges, 
+        tex_blk, 
+        set_for_non_overlap_labels
+        ):
 
 
     logger.debug('+ {0}'.format(signal_array))
@@ -564,7 +592,12 @@ def add_arrows(signal_array, json_file, indent_level, marked_edges, tex_blk, set
 # ------------------------------------------------------------------------------
 # draw_same cycle_links
 # ------------------------------------------------------------------------------
-def draw_cycle_links(start,end,decoration,tex_blk):
+def draw_cycle_links(
+        start,
+        end,
+        decoration,
+        tex_blk
+        ):
     # Arrow South
     adjust_start = 0.25
     adjust_end = 0.55
@@ -597,7 +630,14 @@ def draw_cycle_links(start,end,decoration,tex_blk):
 # ------------------------------------------------------------------------------
 # draw_edge_lines
 # ------------------------------------------------------------------------------
-def draw_edge_lines(signal_array, clock_edges, clk_filter, indent_level, marked_edges, tex_blk):
+def draw_edge_lines(
+        signal_array,
+        clock_edges,
+        clk_filter,
+        indent_level,
+        marked_edges,
+        tex_blk
+        ):
     """ Draw clock edge markers, according to the active edge of the clock"""
 
     logger.debug('+ Add clock cycle markers @ clock edge for {0}'.format(clk_filter))
@@ -626,7 +666,12 @@ def draw_edge_lines(signal_array, clock_edges, clk_filter, indent_level, marked_
 # Third, a horizontal dimension line from the end of first line to the
 # destination
 # and last, add the label from excel.
-def draw_dimension_lines(start, end, t_label, offset):
+def draw_dimension_lines(
+        start,
+        end,
+        t_label,
+        offset
+        ):
 
     t_label = re.sub(r'_', r'\_', t_label)
     logger.debug('+ Add line with label {0}'.format(t_label))
@@ -642,7 +687,9 @@ def draw_dimension_lines(start, end, t_label, offset):
 # amount. Keep this controllable so that it can be used for some relative
 # timeing as will in the future.
 # ------------------------------------------------------------------------------
-def time_offset_signal(signal_array, scale):
+def time_offset_signal(
+        signal_array,
+        scale):
     pass
     #offset = re.sub(r'.*<(.0.\d+)>.*', r'\1',signal_array[0]) 
     #offset = float(offset)*scale
@@ -666,7 +713,10 @@ def sanitize(text):
     text = re.sub(r'_',r'\\_',text) 
     return text
 
-def check_spacers(raw_signal_array, set_of_spacer_marks):
+def check_spacers(
+        raw_signal_array,
+        set_of_spacer_marks
+        ):
     """Build an image of spacer marks while scanning top to bottom
 
        The assumption is that the top row will always contain the required
@@ -685,7 +735,10 @@ def check_spacers(raw_signal_array, set_of_spacer_marks):
     set_of_spacer_marks = set_of_spacer_marks | set(temp)
     return set_of_spacer_marks
 
-def sanitize_spacers(raw_signal_array, set_of_spacer_marks):
+def sanitize_spacers(
+        raw_signal_array,
+        set_of_spacer_marks
+        ):
     """Force spacer marks on raw signal, ie from CSV such that the redering
     would be correct and alligned. A warning would have been issued in the
     check phase
