@@ -1,0 +1,122 @@
+
+    \documentclass[landscape,draft]{report}
+    %\usepackage{tikz-timing}[2017/12/10]
+    \usepackage{tikz-timing}[2011/01/09]
+    \usepackage{hyperref}
+    % This does not work, Need some debug
+    \hypersetup{pdfauthor={AVN},%
+                pdftitle={PDF meta information},%
+                pdfsubject={Sample document with blind text},%
+                pdfkeywords={hyperref, PDF meta information},%
+                pdfproducer=TeXShop,%
+                pdfcreator=pdflatex}
+    
+    %\usepackage{showframe}
+    
+    \usepackage{courier}
+    %\renewcommand{\ttdefault}{courier}
+    \usepackage[T1]{fontenc}
+    
+    %\usetikztiminglibrary[simple]{advnodes}
+    \usetikztiminglibrary{advnodes}
+    \usetikzlibrary{arrows.meta}
+    \pagestyle{empty}
+    \def\degr{${}^\circ$}
+    \usetikzlibrary{arrows}
+    \usetikzlibrary{shapes}
+    \usepackage[text={26cm,19cm},centering]{geometry}
+    \pgfsetroundcap
+    \pgfdeclarelayer{background}
+    \pgfdeclarelayer{annotations}
+    \pgfsetlayers{background,main,annotations}
+    \tikzset{timing/table/.append style={font=\ttfamily\scriptsize}}
+    %\tikzset{timing/font/.cd/.append style={font=\ttfamily\scriptsize}
+    %\tikzset{timing/d/text/.append style={font=\sffamily\scriptsize}}
+    \tikzset{timing/d/text/.append style={font=\ttfamily\scriptsize}}
+    
+    %Use this package for notes enumeration
+    \usepackage{enumitem}
+    \setlist[enumerate]{font=\sffamily\scriptsize, topsep=0pt,itemsep=-1ex,partopsep=1ex,parsep=1ex}
+    \newlist{deflist}{description}{1}
+    \setlist[deflist]{labelwidth=2cm,leftmargin=!,font=\normalfont}
+    
+    \makeatletter
+    \newcommand{\gettikzxy}[3]{%
+        \tikz@scan@one@point\pgfutil@firstofone#1\relax
+        \edef#2{\the\pgf@x}%
+        \edef#3{\the\pgf@y}%
+    }
+    \makeatother
+    
+    \begin{document}
+    \begin{tikztimingtable}[>=angle 90, timing/picture, timing/nodes/.cd,advanced,]
+    \\
+C1:clk\_master            & [C] N(clkmaster-1)0.02C 1.98C N(clkmaster0)0.02C 1.98C N(clkmaster1)0.02C 1.98C ;[dotted]2L; N(clkmaster5)0.02C 1.98C N(clkmaster6)0.02C 1.98C N(clkmaster7)0.02C 1.98C N(clkmaster8)0.02C 1.98C N(clkmaster9)0.02C 1.98C N(clkmaster10)0.02C 1.98C N(clkmaster11)0.02C 1.98C N(clkmaster12)0.02C 1.98C N(clkmaster13)0.02C 1.98C N(clkmaster14)0.02C 1.98C N(clkmaster15)0.02C 1.98C N(clkmaster16)0.02C 1.98C N(clkmaster17)0.02C 1.98C N(clkmaster18)0.02C 1.98C N(clkmaster19)0.02C 1.98C N(clkmaster20)0.02C 1.98C N(clkmaster21)0.02C 1.98C N(clkmaster22)0.02C 1.98C N(clkmaster23)0.02C 1.98C N(clkmaster24)0.02C 1.98C N(clkmaster25)0.02C 1.98C N(clkmaster26)0.02C 1.98C N(clkmaster27)0.02C 1.98C N(clkmaster28)0.02C 1.98C N(clkmaster29)0.02C 1.98C N(clkmaster30)0.02C 1.98C N(clkmaster31)0.02C 1.98C N(clkmaster32)0.02C 1.98C N(clkmaster33)0.02C 1.98C N(clkmaster34)0.02C 1.98C N(clkmaster35)0.02C 1.98C N(clkmaster36)0.02C 1.98C N(clkmaster37)0.02C 1.98C N(clkmaster38)0.02C 1.98C N(clkmaster39)0.02C 1.98C N(clkmaster40)0.02C 1.98C N(clkmaster41)0.02C 1.98C N(clkmaster42)0.02C 1.98C N(clkmaster43)0.02C 1.98C N(clkmaster44)0.02C 1.98C N(clkmaster45)0.02C 1.98C N(clkmaster46)0.02C 1.98C N(clkmaster47)0.02C 1.98C N(clkmaster48)0.02C 1.98C N(clkmaster49)0.02C 1.98C N(clkmaster50)0.02C 1.98C \\
+C25:clk\_b                & [C] 2L N(clkb0)0.5C 1.5C 2L ;[dotted]2L; 2L N(clkb6)0.5C 1.5C 2L 2L N(clkb9)0.5C 1.5C 2L 2L N(clkb12)0.5C 1.5C 2L 2L N(clkb15)0.5C 1.5C 2L 2L N(clkb18)0.5C 1.5C 2L 2L N(clkb21)0.5C 1.5C 2L 2L N(clkb24)0.5C 1.5C 2L 2L N(clkb27)0.5C 1.5C 2L 2L N(clkb30)0.5C 1.5C 2L 2L N(clkb33)0.5C 1.5C 2L 2L N(clkb36)0.5C 1.5C 2L 2L N(clkb39)0.5C 1.5C 2L 2L N(clkb42)0.5C 1.5C 2L 2L N(clkb45)0.5C 1.5C 2L 2L N(clkb48)0.5C 1.5C 2L 2L \\
+C50:clk\_c                & [C] 2L N(clkc0)1.0C 1.0C 2L ;[dotted]2L; N(clkc5)1.0C 1.0C 2L 2L 2L 2L N(clkc10)1.0C 1.0C 2L 2L 2L 2L N(clkc15)1.0C 1.0C 2L 2L 2L 2L N(clkc20)1.0C 1.0C 2L 2L 2L 2L N(clkc25)1.0C 1.0C 2L 2L 2L 2L N(clkc30)1.0C 1.0C 2L 2L 2L 2L N(clkc35)1.0C 1.0C 2L 2L 2L 2L N(clkc40)1.0C 1.0C 2L 2L 2L 2L N(clkc45)1.0C 1.0C 2L 2L 2L 2L N(clkc50)1.0C 1.0C \\
+C75:nclk\_d               & N(nclkd-1)1.5C 0.5C N(nclkd0)1.5C 0.5C N(nclkd1)1.5C 0.5C ;[dotted]2H; N() N(nclkd5)1.5C 0.5C N(F8>) N(nclkd6)1.5C 0.5C N(nclkd7)1.5C 0.5C N(nclkd8)1.5C 0.5C N(nclkd9)1.5C 0.5C N(nclkd10)1.5C 0.5C N(nclkd11)1.5C 0.5C N(nclkd12)1.5C 0.5C N(nclkd13)1.5C 0.5C N(nclkd14)1.5C 0.5C N(nclkd15)1.5C 0.5C N(nclkd16)1.5C 0.5C N(nclkd17)1.5C 0.5C N(nclkd18)1.5C 0.5C N(nclkd19)1.5C 0.5C N(nclkd20)1.5C 0.5C N(nclkd21)1.5C 0.5C N(nclkd22)1.5C 0.5C N(nclkd23)1.5C 0.5C N(nclkd24)1.5C 0.5C N(nclkd25)1.5C 0.5C N(nclkd26)1.5C 0.5C N(nclkd27)1.5C 0.5C N(nclkd28)1.5C 0.5C N(nclkd29)1.5C 0.5C N(nclkd30)1.5C 0.5C N(nclkd31)1.5C 0.5C N(nclkd32)1.5C 0.5C N(nclkd33)1.5C 0.5C N(nclkd34)1.5C 0.5C N(nclkd35)1.5C 0.5C N(nclkd36)1.5C 0.5C N(nclkd37)1.5C 0.5C N(nclkd38)1.5C 0.5C N(nclkd39)1.5C 0.5C N(nclkd40)1.5C 0.5C N(nclkd41)1.5C 0.5C N(nclkd42)1.5C 0.5C N(nclkd43)1.5C 0.5C N(nclkd44)1.5C 0.5C N(nclkd45)1.5C 0.5C N(nclkd46)1.5C 0.5C N(nclkd47)1.5C 0.5C N(nclkd48)1.5C 0.5C N(nclkd49)1.5C 0.5C N(nclkd50)1.5C 0.5C \\
+D                         & 2X 2X 2H ;[dotted]2H; 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H \\
+\textit{sig\_clk\_b}      & 2L 2L 2L ;[dotted]2L; 2L 2H N(G11>) 2H 2H 2H N(J11>) 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H 2H N(X11>) 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L \\
+\textit{B:sig\_clk\_c}    & ;2U ;2U ;2U ;[dotted]2U; ;2U ;2U ;2U ;2U ;2U N(J13>) 2D 2D 2D 2D 2D{0b01} N(O13>) 2D 2D 2D N(R13>) 2D 2D 2D 2D 2D 2D 2D{0b11} ;2X N(Z13>) ;2X ;2X ;2X ;2X N(^13>) 2D 2D 2D 2D 2D{0b10} 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D{0b00} \\
+B:sig\_ack\_clk\_b        & ;2U ;2U ;2U ;[dotted]2U; ;2U ;2U ;2U ;2U ;2U ;2U ;2U ;2U ;2U ;2U ;2U ;2U ;2U N(R15>) 2D 2D 2D{0b01} N(U15>) 2D 2D 2D N(X15>) 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D 2D{0b11} ;2X N([waveforms__template.xlsx]template!A41>) ;2X ;2X 2D 2D 2D{0b10} 2D 2D 2D 2D 2D 2D 2D 2D 2D{0b00} \\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\extracode
+\tablerules
+\begin{pgfonlayer}{annotations}
+\tableheader{}{A simple clock domain crossover with REQ/ACK, and double synchronisation either way}
+\begin{scope}[semitransparent,ultra thin]
+\vertlines[gray]{2,8,18,28,38,48,58,68,78,88,98}
+\end{scope}
+\draw (clkc0.MID)node[above=6,right=-1pt]{\tiny 0};
+\draw (clkc5.MID)node[above=6,right=-1pt]{\tiny 5};
+\draw (clkc10.MID)node[above=6,right=-1pt]{\tiny 10};
+\draw (clkc15.MID)node[above=6,right=-1pt]{\tiny 15};
+\draw (clkc20.MID)node[above=6,right=-1pt]{\tiny 20};
+\draw (clkc25.MID)node[above=6,right=-1pt]{\tiny 25};
+\draw (clkc30.MID)node[above=6,right=-1pt]{\tiny 30};
+\draw (clkc35.MID)node[above=6,right=-1pt]{\tiny 35};
+\draw (clkc40.MID)node[above=6,right=-1pt]{\tiny 40};
+\draw (clkc45.MID)node[above=6,right=-1pt]{\tiny 45};
+\draw (clkc50.MID)node[above=6,right=-1pt]{\tiny 50};
+\begin{scope}[semitransparent,ultra thin]
+\vertlines[gray]{2,10,16,22,28,34,40,46,52,58,64,70,76,82,88,94}
+\end{scope}
+\draw (clkb0.MID)node[above=6,right=-1pt]{\tiny 0};
+\draw (clkb6.MID)node[above=6,right=-1pt]{\tiny 6};
+\draw (clkb9.MID)node[above=6,right=-1pt]{\tiny 9};
+\draw (clkb12.MID)node[above=6,right=-1pt]{\tiny 12};
+\draw (clkb15.MID)node[above=6,right=-1pt]{\tiny 15};
+\draw (clkb18.MID)node[above=6,right=-1pt]{\tiny 18};
+\draw (clkb21.MID)node[above=6,right=-1pt]{\tiny 21};
+\draw (clkb24.MID)node[above=6,right=-1pt]{\tiny 24};
+\draw (clkb27.MID)node[above=6,right=-1pt]{\tiny 27};
+\draw (clkb30.MID)node[above=6,right=-1pt]{\tiny 30};
+\draw (clkb33.MID)node[above=6,right=-1pt]{\tiny 33};
+\draw (clkb36.MID)node[above=6,right=-1pt]{\tiny 36};
+\draw (clkb39.MID)node[above=6,right=-1pt]{\tiny 39};
+\draw (clkb42.MID)node[above=6,right=-1pt]{\tiny 42};
+\draw (clkb45.MID)node[above=6,right=-1pt]{\tiny 45};
+\draw (clkb48.MID)node[above=6,right=-1pt]{\tiny 48};
+\draw [red,ultra thin, o->] ($(J11>.high)-(0.25,0)$)node[left=2pt]{} .. controls ++(6,0) and ++(-6,0) .. (J13>.MID) node[above right=2pt] {};
+\draw [red,ultra thin, o->] ($(J13>.MID)-(0.25,0)$)node[left=2pt]{} .. controls ++(6,0) and ++(-6,0) .. (O13>.MID) node[above right=2pt] {};
+\draw [red,ultra thin, o->] ($(R13>.MID)-(0.25,0)$)node[left=2pt]{} .. controls ++(6,0) and ++(-6,0) .. (R15>.MID) node[above right=2pt] {};
+\draw [red,ultra thin, o->] ($(R15>.MID)-(0.25,0)$)node[left=2pt]{} .. controls ++(6,0) and ++(-6,0) .. (U15>.MID) node[above right=2pt] {};
+\draw [red,ultra thin, o->] ($(X15>.MID)-(0.25,0)$)node[left=2pt]{} .. controls ++(6,0) and ++(-6,0) .. (X11>.low) node[above right=2pt] {};
+\draw [gray, ultra thin, {Circle[length=1pt]}-] ($(Z13>.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {\tiny \em 1} -- ($(Z13>.HIGH) +(-0.5,0.6)$);
+\end{pgfonlayer}
+\end{tikztimingtable}
+\par {\ttfamily\scriptsize{NOTE:}
+\begin{enumerate}{}
+\setlength{\leftskip}{2.3cm}
+\ttfamily\scriptsize
+\item (1) Possible metastability on landing flop in clk\_c
+\subitem\hspace{1em}Possible Metastability on landing flop in clk\_b
+\end{enumerate}
+}\end{document}

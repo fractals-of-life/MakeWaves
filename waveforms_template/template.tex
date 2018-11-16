@@ -1,0 +1,114 @@
+
+    \documentclass[landscape,draft]{report}
+    %\usepackage{tikz-timing}[2017/12/10]
+    \usepackage{tikz-timing}[2011/01/09]
+    \usepackage{hyperref}
+    % This does not work, Need some debug
+    \hypersetup{pdfauthor={AVN},%
+                pdftitle={PDF meta information},%
+                pdfsubject={Sample document with blind text},%
+                pdfkeywords={hyperref, PDF meta information},%
+                pdfproducer=TeXShop,%
+                pdfcreator=pdflatex}
+    
+    %\usepackage{showframe}
+    
+    \usepackage{courier}
+    %\renewcommand{\ttdefault}{courier}
+    \usepackage[T1]{fontenc}
+    
+    %\usetikztiminglibrary[simple]{advnodes}
+    \usetikztiminglibrary{advnodes}
+    \usetikzlibrary{arrows.meta}
+    \pagestyle{empty}
+    \def\degr{${}^\circ$}
+    \usetikzlibrary{arrows}
+    \usetikzlibrary{shapes}
+    \usepackage[text={26cm,19cm},centering]{geometry}
+    \pgfsetroundcap
+    \pgfdeclarelayer{background}
+    \pgfdeclarelayer{annotations}
+    \pgfsetlayers{background,main,annotations}
+    \tikzset{timing/table/.append style={font=\ttfamily\scriptsize}}
+    %\tikzset{timing/font/.cd/.append style={font=\ttfamily\scriptsize}
+    %\tikzset{timing/d/text/.append style={font=\sffamily\scriptsize}}
+    \tikzset{timing/d/text/.append style={font=\ttfamily\scriptsize}}
+    
+    %Use this package for notes enumeration
+    \usepackage{enumitem}
+    \setlist[enumerate]{font=\sffamily\scriptsize, topsep=0pt,itemsep=-1ex,partopsep=1ex,parsep=1ex}
+    \newlist{deflist}{description}{1}
+    \setlist[deflist]{labelwidth=2cm,leftmargin=!,font=\normalfont}
+    
+    \makeatletter
+    \newcommand{\gettikzxy}[3]{%
+        \tikz@scan@one@point\pgfutil@firstofone#1\relax
+        \edef#2{\the\pgf@x}%
+        \edef#3{\the\pgf@y}%
+    }
+    \makeatother
+    
+    \begin{document}
+    \begin{tikztimingtable}[>=angle 90, timing/picture, timing/nodes/.cd,advanced,]
+    \\
+\\
+\textbf{\_\_\_\_\_\_G:Capabilities} & 8L 8L 8L 8L 8L 8L 8L 8L 8L 8L 8L 8L 8L 8L 8L \\
+C5:clk\_a                 & [C] N(clka-1)0.4C 7.6C N(clka0)0.4C 7.6C N(clka1)0.4C 7.6C ;[dotted]2L; N(clka5)0.4C 7.6C N(clka6)0.4C 7.6C N(clka7)0.4C 7.6C N(clka8)0.4C 7.6C N(clka9)0.4C 7.6C N(clka10)0.4C 7.6C N(clka11)0.4C 7.6C N(clka12)0.4C 7.6C N(clka13)0.4C 7.6C N(clka14)0.4C 7.6C N(clka15)0.4C 7.6C \\
+C25:clk\_b                & [C] N(clkb-1)2.0C 6.0C N(clkb0)2.0C 6.0C N(clkb1)2.0C 6.0C ;[dotted]2L; N(clkb5)2.0C 6.0C N(clkb6)2.0C 6.0C N(clkb7)2.0C 6.0C N(clkb8)2.0C 6.0C N(clkb9)2.0C 6.0C N(clkb10)2.0C 6.0C N(clkb11)2.0C 6.0C N(clkb12)2.0C 6.0C N(clkb13)2.0C 6.0C N(clkb14)2.0C 6.0C N(clkb15)2.0C 6.0C \\
+C50:clk\_c                & [C] 8L N(clkc0)4.0C 4.0C 8L ;[dotted]2L; N(clkc3)4.0C 4.0C 8L 8L N(clkc6)4.0C 4.0C 8L 8L N(clkc9)4.0C 4.0C 8L 8L N(clkc12)4.0C 4.0C 8L \\
+C75:nclk\_d               & N(nclkd-1)6.0C 2.0C N(nclkd0)6.0C 2.0C N(nclkd1)6.0C 2.0C ;[dotted]2H; N() N(nclkd5)6.0C 2.0C N(F9>) N(nclkd6)6.0C 2.0C N(nclkd7)6.0C 2.0C N(nclkd8)6.0C 2.0C N(nclkd9)6.0C 2.0C N(nclkd10)6.0C 2.0C N(nclkd11)6.0C 2.0C N(nclkd12)6.0C 2.0C N(nclkd13)6.0C 2.0C N(nclkd14)6.0C 2.0C N(nclkd15)6.0C 2.0C \\
+Q                         & 8X 8X N(C11>) 8H ;[dotted]2H; N() 8H 8H 8H 8H 8H 8H 8H 8H 8H 8H 8H \\
+B:bus                     & ;8U 8D{12345678} N(C13>) [fill={rgb,255:red,255; green,204; blue,153}]8D{D} ;[dotted]2D; N() [fill={rgb,255:red,204; green,255; blue,102}]8D{D} [fill={rgb,255:red,153; green,204; blue,255}]8D{D} N(G13>) ;8D{ } ;8U ;8U ;8U ;8U ;8U ;8U ;8U ;8U \\
+B:bus2                    & ;8U 8D 8D ;[dotted]2D; N() 8D 8D 8D{A-Z a-z 0-9 \_ + - : * ( )} N(H15>) ;8X ;8X ;8X ;8X ;8X ;8X ;8X ;8X \\
+\\
+Combo                     & 8X 0.24T7.76T N(C18>) 8L ;[dotted]2L; N() 8H 0.24T7.76T N(G18>) 2.0U6.0H N(H18>) 2.0U6.0L 8X 8X 8X 8X 8X 8X 8X \\
+\\
+\\
+\\
+\extracode
+\tablerules
+\begin{pgfonlayer}{annotations}
+\tableheader{}{MakeWaves}
+\begin{scope}[semitransparent,ultra thin]
+\vertlines[gray]{0,8,16,26,34,42,50,58,66,74,82,90,98,106}
+\end{scope}
+\draw (clka-1.MID)node[above=6,right=-1pt]{\tiny -1};
+\draw (clka0.MID)node[above=6,right=-1pt]{\tiny 0};
+\draw (clka1.MID)node[above=6,right=-1pt]{\tiny 1};
+\draw (clka5.MID)node[above=6,right=-1pt]{\tiny 5};
+\draw (clka6.MID)node[above=6,right=-1pt]{\tiny 6};
+\draw (clka7.MID)node[above=6,right=-1pt]{\tiny 7};
+\draw (clka8.MID)node[above=6,right=-1pt]{\tiny 8};
+\draw (clka9.MID)node[above=6,right=-1pt]{\tiny 9};
+\draw (clka10.MID)node[above=6,right=-1pt]{\tiny 10};
+\draw (clka11.MID)node[above=6,right=-1pt]{\tiny 11};
+\draw (clka12.MID)node[above=6,right=-1pt]{\tiny 12};
+\draw (clka13.MID)node[above=6,right=-1pt]{\tiny 13};
+\draw (clka14.MID)node[above=6,right=-1pt]{\tiny 14};
+\draw (clka15.MID)node[above=6,right=-1pt]{\tiny 15};
+\draw [red,ultra thin, o->] ($(C18>.MID)-(0.25,0)$)node[left=2pt]{} .. controls ++(6,0) and ++(-6,0) .. (C11>.high) node[above right=2pt] {};
+\draw [red,ultra thin, *->] ($(G18>.MID)-(0.5,0.25)$) -- ($(G13>.MID)-(0.5,0.55)$);
+\gettikzxy{(C11>.MID)}{\sx}{\sy}
+\gettikzxy{(H15>.MID)}{\ex}{\ey}
+\draw [red,ultra thin, densely dashed] ($(\sx,\sy)-(0,1)$) -- ($(\sx,\ey)-(0,1)$);
+\draw [red,ultra thin, |-|] ($(\sx,\ey)-(0,1)$) -- ($(\ex,\ey)-(0,1)$)node[ right=2pt] {\tiny A constraint};
+\draw [gray, ultra thin, {Circle[length=1pt]}-] ($(F9>.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {\tiny \em 1} -- ($(F9>.HIGH) +(-0.5,0.6)$);
+\draw [gray, ultra thin, {Circle[length=1pt]}-] ($(C13>.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {\tiny \em 2} -- ($(C13>.HIGH) +(-0.5,0.6)$);
+\draw [gray, ultra thin, {Circle[length=1pt]}-] ($(C18>.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {\tiny \em 3} -- ($(C18>.HIGH) +(-0.5,0.6)$);
+\draw [gray, ultra thin, {Circle[length=1pt]}-] ($(G18>.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {\tiny \em 4} -- ($(G18>.HIGH) +(-0.5,0.6)$);
+\draw [gray, ultra thin, {Circle[length=1pt]}-] ($(H18>.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {\tiny \em 5} -- ($(H18>.HIGH) +(-0.5,0.6)$);
+\end{pgfonlayer}
+\end{tikztimingtable}
+\par {\ttfamily\scriptsize{NOTE:}
+\begin{enumerate}{}
+\setlength{\leftskip}{2.3cm}
+\ttfamily\scriptsize
+\item (1) Mark something on a clock cycle.
+\item (2) The text just fits
+\item (3) A glitch at the beginning of the clock
+\item (4) Negative glitch
+\item (5) Transition to 1
+\subitem\hspace{1em}Next cycle transition to 0
+\subitem\hspace{1em}This is a multi line note with chars A-Z a-z 0-9 \_ + - : [ ] { } ( )
+\end{enumerate}
+}\end{document}
