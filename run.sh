@@ -1,4 +1,10 @@
 #!/bin/tcsh
+set WAVEMAKER_WORK = $cwd:t
+set WAVEMAKER_BASE = $cwd:h
+echo $WAVEMAKER_WORK
+echo $WAVEMAKER_BASE
+
+
 cat<<EOF
 -- -----------------------------------------------------------------------------
 o  Requires python 2.7.10 for xls to csv, csv to tex conversion
@@ -59,7 +65,7 @@ set lst = ( $* )
 while ($#)
     if ( "$1" == "-wb" ) then
         shift
-        set xls_file = $1
+        set xls_file = $WAVEMAKER_BASE/$WAVEMAKER_WORK/$1
   
         if ( $xls_file:e !~ "xlsx" ) then
   
@@ -110,7 +116,7 @@ echo "Working on ... Wokbook $xls_file, sheets $xls_sheet"
 # -------------------------------------------------------------------------------
 # Generate csv from xlsx output is worksheet .csv
 # -------------------------------------------------------------------------------
-python read_xlsx_val.py $xls_file $xls_sheet
+python ../py_scripts/read_xlsx_val.py $xls_file $xls_sheet
 
 echo `cat job_list`
 foreach WAVEFORM (`cat ./job_list`)
@@ -122,7 +128,7 @@ foreach WAVEFORM (`cat ./job_list`)
     [ ! -f ${WAVEFORM}.csv ] && echo "File not found: ${WAVEFORM}.csv" && exit 1
   
     echo "INFO : Generating tex file ..."
-    python ./draw_wave_tex.py ${WAVEFORM}.csv ${WAVEFORM}.tex 4 
+    python ../py_scripts/draw_wave_tex.py ${WAVEFORM}.csv ${WAVEFORM}.tex 4 
     
     if ( $? == 0 ) then
           echo "csv to tex...OK"
