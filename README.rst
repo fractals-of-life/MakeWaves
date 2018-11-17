@@ -17,13 +17,14 @@ or baseline mode and  :r selects the annotation colour.
 Contents.
 ------------------------------------------------------------------------------
 
-* Usage with the wrapper script
+* Motivation
+* Usage with the push button wrapper script
 * Understanding Common Errors
 * MISC setup info that might be useful
 
+Motivation
 ------------------------------------------------------------------------------
-Usage: With the push-button wrapper script run.sh
-------------------------------------------------------------------------------
+
 
 * Why use Excel or a similar utility?
 
@@ -104,8 +105,58 @@ tex will generate an ERROR. Please Refer ERROR section.
 This will convert all sheets that are non empty. A sheet is empty if it has
 no valid cell.  A sheet might unintentionally be classified as non empty, in
 such case delete the sheet or add _nt' to the end of the sheet name. This can
-be useful with sheets used to capture additional info. 
+be useful with sheets used to capture additional info.
 
+
+Push button script
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. code:: shell
+
+    cd <project_dir_containing_xlsx>
+    
+    ../run.sh -wb waveforms_all.xlsx -all -disp
+    
+    -disp : open xpdf after every render
+    -all  : process all non empty sheets in xlsx, A sheet is considerd non empty if atleast one cell has a value.
+            Check for validity of a sheet for parsing to produce waveforms is not considered.
+    -active: render only the active sheet. Along with display can be used for development.
+    <-ws sheet_name> : provide the explicit sheet name.
+    
+    svg: By default svg and png are generated. scg's are generally large files and hence the default dfeature will be turned off in the future.
+
+Common ERRORS:
+------------------------------------------------------------------------------
+
+
+1. Nature of Error when the CLK_MARKS section is enabled but no clock is
+defined i.e the clock column is '0' or empty. Ideally this should be the
+exact copy of the clock for which the timing cycles are to be drawn,
+reference in the cell as =<cell_containitng_the_name_of_the_clk>.::
+
+    Traceback (most recent call last):
+      File "./draw_wave_tex.py", line 565, in <module>
+        tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
+      ...
+      ...
+    sre_constants.error: nothing to repeat
+    ERROR: waveforms_template.tex convesion failed
+    
+2. Error when the pdf is open by another application, normally from windows.::
+
+    ERROR:!I can't write on file \`waveforms_template.pdf\'.
+           (Press Enter to retry, or Control-D to exit; default file extension is \`.pdf\')
+           Please type another file name for output
+           ! Emergency stop.
+
+3. Nature of the error when '...' get replaced with the unicode equivalent.::
+
+    Traceback (most recent call last):
+      File "read_xlsx_val.py", line 68, in <module>
+        result = convert_to_csv(ws_active)
+      File "read_xlsx_val.py", line 24, in convert_to_csv
+        csv_f.writerow([cell.value for cell in row])
+    UnicodeEncodeError: 'ascii' codec can't encode character u'\u2026' in position 6: ordinal not in range(128)
 
 MISC Notes
 ------------------------------------------------------------------------------
@@ -170,54 +221,3 @@ Using the anaconda distribution
     pdflatex -interaction=nonstopmode waveforms_cancel_sane.tex
 
     inkscape -z -f waveforms_cancel_sane.pdf -l waveforms_cancel_sane.svg
-
-Push button script
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-.. code:: shell
-
-    cd <project_dir_containing_xlsx>
-    
-    ../run.sh -wb waveforms_all.xlsx -all -disp
-    
-    -disp : open xpdf after every render
-    -all  : process all non empty sheets in xlsx, A sheet is considerd non empty if atleast one cell has a value.
-            Check for validity of a sheet for parsing to produce waveforms is not considered.
-    -active: render only the active sheet. Along with display can be used for development.
-    <-ws sheet_name> : provide the explicit sheet name.
-    
-    svg: By default svg and png are generated. scg's are generally large files and hence the default dfeature will be turned off in the future.
-
-Common ERRORS:
-------------------------------------------------------------------------------
-
-
-1. Nature of Error when the CLK_MARKS section is enabled but no clock is
-defined i.e the clock column is '0' or empty. Ideally this should be the
-exact copy of the clock for which the timing cycles are to be drawn,
-reference in the cell as =<cell_containitng_the_name_of_the_clk>. 
-
-::
-    Traceback (most recent call last):
-      File "./draw_wave_tex.py", line 565, in <module>
-        tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
-      ...
-      ...
-    sre_constants.error: nothing to repeat
-    ERROR: waveforms_template.tex convesion failed
-    
-2. Error when the pdf is open by another application, normally from windows.
-::
-    ERROR:!I can't write on file \`waveforms_template.pdf\'.
-           (Press Enter to retry, or Control-D to exit; default file extension is \`.pdf\')
-           Please type another file name for output
-           ! Emergency stop.
-
-3. Nature of the error when '...' get replaced with the unicode equivalent.
-::
-    Traceback (most recent call last):
-      File "read_xlsx_val.py", line 68, in <module>
-        result = convert_to_csv(ws_active)
-      File "read_xlsx_val.py", line 24, in convert_to_csv
-        csv_f.writerow([cell.value for cell in row])
-    UnicodeEncodeError: 'ascii' codec can't encode character u'\u2026' in position 6: ordinal not in range(128)
