@@ -1,6 +1,6 @@
+MakeWaves
+==========
 
-# Use Rep to clone
-/work/scratch3/nairajay/waveform_draw
 # ------------------------------------------------------------------------------
 # # CONTENTS
 # ------------------------------------------------------------------------------
@@ -17,12 +17,6 @@ o Usage with the wrapper script
 o Understanding Common Errors
 o MISC setup info that might be useful
 
-7867  2018-04-11 17:08 README
-2743  2018-04-09 17:01 read_xlsx_val.py
-26677 2018-04-10 13:28 draw_wave_tex.py
-59733 2018-04-10 14:19 waveforms_template.pdf
-27277 2018-04-10 12:57 waveforms__template.xlsx
-6071  2018-04-10 14:21 run.sh
 # ------------------------------------------------------------------------------
 # Usage: With the push-button wrapper script run.sh
 # ------------------------------------------------------------------------------
@@ -30,7 +24,7 @@ o Why use Excel or a similar utility?
 
     Using such an application provides a simple tabular interface which can often
   be intuitive for waveform entry. Further simple formulas and rudimentary
-  intelligence provided by *office can be used advantageously to generate a
+  intelligence provided by \*office can be used advantageously to generate a
   consistent maintainable and reproducible waveform. A drawing application can be
   used, but the main issue with those is maintainability, as well as effort
   required.  The current work flow is as follows and provides human readable text
@@ -100,90 +94,112 @@ no valid cell.  A sheet might unintentionally be classified as non empty, in
 such case delete the sheet or add _nt' to the end of the sheet name. This can
 be useful with sheets used to capture additional info. 
 
-# ------------------------------------------------------------------------------
-# Common ERRORS:
-# ------------------------------------------------------------------------------
-1) Nature of Error when the CLK_MARKS section is enabled but no clock is defined
-   i.e the clock column is '0' or empty. Ideally this should be the exact copy 
-   of the clock for which the timing cycles are to be drawn, reference in the
-   cell as =<cell_containitng_the_name_of_the_clk>.
+.. caution::
 
-Traceback (most recent call last):
-  File "./draw_wave_tex.py", line 565, in <module>
-    tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
-  ...
-  ...
-sre_constants.error: nothing to repeat
-ERROR: waveforms_template.tex convesion failed
+    # Common ERRORS:
+    # ------------------------------------------------------------------------------
 
-2) Error when the pdf is open by another application, normally from windows.
-
-ERROR:!I can't write on file `waveforms_template.pdf'.
-       (Press Enter to retry, or Control-D to exit; default file extension is `.pdf')
-       Please type another file name for output
-       ! Emergency stop.
-
-3)i Nature of the error when '...' get replaced with the unicode equivalent. 
-Traceback (most recent call last):
-  File "read_xlsx_val.py", line 68, in <module>
-    result = convert_to_csv(ws_active)
-  File "read_xlsx_val.py", line 24, in convert_to_csv
-    csv_f.writerow([cell.value for cell in row])
-UnicodeEncodeError: 'ascii' codec can't encode character u'\u2026' in position 6: ordinal not in range(128)
-
-
-
-# ------------------------------------------------------------------------------
-# MISC Notes
-# ------------------------------------------------------------------------------
+    1) Nature of Error when the CLK_MARKS section is enabled but no clock is defined
+       i.e the clock column is '0' or empty. Ideally this should be the exact copy 
+       of the clock for which the timing cycles are to be drawn, reference in the
+       cell as =<cell_containitng_the_name_of_the_clk>.
+    
+        Traceback (most recent call last):
+          File "./draw_wave_tex.py", line 565, in <module>
+            tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
+          ...
+          ...
+        sre_constants.error: nothing to repeat
+        ERROR: waveforms_template.tex convesion failed
+        
+    2) Error when the pdf is open by another application, normally from windows.
+    
+        ERROR:!I can't write on file `waveforms_template.pdf'.
+               (Press Enter to retry, or Control-D to exit; default file extension is `.pdf')
+               Please type another file name for output
+               ! Emergency stop.
+    
+    3) Nature of the error when '...' get replaced with the unicode equivalent. 
+        Traceback (most recent call last):
+          File "read_xlsx_val.py", line 68, in <module>
+            result = convert_to_csv(ws_active)
+          File "read_xlsx_val.py", line 24, in convert_to_csv
+            csv_f.writerow([cell.value for cell in row])
+        UnicodeEncodeError: 'ascii' codec can't encode character u'\u2026' in position 6: ordinal not in range(128)
 
 
-# ------------------------------------------------------------------------------
-# Getting hold of Required packages
-# ------------------------------------------------------------------------------
-# Script uses the following packages
-# xls2csv, openpyxl
-# 
-# There is a specific version check for python, at the moment this is hardcoded
-# to 2.7.10, you may override this in the script.
-#
-# The following is needed for xlstocsv converion from command line
-mkdir -p /home/nairajay/local/lib/python2.6/site-packages/
-# The required packages for python may not be available on the host or a
-# managed system. Python allows mechanisms to install them locally. Creating
-# vritiual env is another option.
-# with both pip available and access to the outside world, pip_install --user should
-# suffice for majority of the cases. This should default to ~/.local/ and
-# python would search this path by default.
-pip_install --user <package> 
 
-# A messy way is to use easy_install or using the setup.py from a tarball. Both
-# these can lead to problems.
-echo $PYTHONPATH
-# append if not empty
-# # Note: python version specific
-setenv PYTHONPATH /home/<user>/local/lib/<python_version>/site-packages
-# run once
-easy_install --prefix=$HOME/local xlsx2csv
+ MISC Notes
+ ------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
-#  Using the anaconda distribution
-# ------------------------------------------------------------------------------
-module use /opt/ipython/modulefiles
-module load ipyhton 
 
-module load texlive/2016
-# sometimes it might complain about the tikz-timing library, just use what is
-# available, Seem to work
+ ------------------------------------------------------------------------------
+ Getting hold of Required packages
+ ------------------------------------------------------------------------------
+ Script uses the following packages
+ xls2csv, openpyxl
+ 
+ There is a specific version check for python, at the moment this is hardcoded
+ to 2.7.10, you may override this in the script.
 
-python ./draw_wave_tex.py waveforms_cancel_sane.csv waveforms_cancel_sane.tex
-pdflatex waveforms_cancel_sane.tex
-pdflatex -interaction=nonstopmode waveforms_cancel_sane.tex
+ The following is needed for xlstocsv converion from command line
 
-inkscape -z -f waveforms_cancel_sane.pdf -l waveforms_cancel_sane.svg
+.. code::
 
-# Push button script
-./run.sh -wb waveforms_all.xlsx -all -disp
+    mkdir -p /home/user/local/lib/python2.6/site-packages/
+
+ The required packages for python may not be available on the host or a
+ managed system. Python allows mechanisms to install them locally. Creating
+ vritiual env is another option.
+ with both pip available and access to the outside world, pip_install --user should
+ suffice for majority of the cases. This should default to ~/.local/ and
+ python would search this path by default.
+
+.. code::
+
+    pip_install --user <package> 
+
+ A messy way is to use easy_install or using the setup.py from a tarball. Both
+ these can lead to problems.
+
+ .. code::
+
+    echo $PYTHONPATH
+
+    # append if not empty
+    # Note: python version specific
+
+    setenv PYTHONPATH /home/<user>/local/lib/<python_version>/site-packages
+
+    # run once
+
+    easy_install --prefix=$HOME/local xlsx2csv
+
+------------------------------------------------------------------------------
+Using the anaconda distribution
+------------------------------------------------------------------------------
+.. code::
+
+    module use /opt/ipython/modulefiles
+    module load ipyhton 
+
+    module load texlive/2016
+
+    # sometimes it might complain about the tikz-timing library, just use what is
+    # available, Seem to work
+
+    python ./draw_wave_tex.py waveforms_cancel_sane.csv waveforms_cancel_sane.tex
+    pdflatex waveforms_cancel_sane.tex
+    pdflatex -interaction=nonstopmode waveforms_cancel_sane.tex
+
+    inkscape -z -f waveforms_cancel_sane.pdf -l waveforms_cancel_sane.svg
+
+Push button script
+------------------------------------------------------------------------------
+cd <project_dir_containing_xlsx>
+
+../run.sh -wb waveforms_all.xlsx -all -disp
+
 -disp : open xpdf after every render
 -all  : process all non empty sheets in xlsx, A sheet is considerd non empty if atleast one cell has a value.
         Check for validity of a sheet for parsing to produce waveforms is not considered.
