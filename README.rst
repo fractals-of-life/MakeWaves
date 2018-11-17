@@ -1,41 +1,48 @@
 MakeWaves
 ==========
 
-# ------------------------------------------------------------------------------
-# # CONTENTS
-# ------------------------------------------------------------------------------
+RDT Documentation `MakeWaves <https://makewaves.readthedocs.io/en/latest/intro.html>`_. 
+
+Version
+------------------------------------------------------------------------------
+
 v1.1:
 Changes to the intermediate CSV to use ';' instead of '.' as the delimiter.
 this has the knock on effect that the Anotation type can no longer have B|C:c:r
 This was anyway not used, so changed to B|C:r where B,C still works as chained i
 or baseline mode and  :r selects the annotation colour.
+
 :r is the defualt and cannot be over overidden yet, it is not christmas yet!. 
-# ------------------------------------------------------------------------------
-# CONTENTS
-# ------------------------------------------------------------------------------
-o Usage with the wrapper script
-o Understanding Common Errors
-o MISC setup info that might be useful
 
-# ------------------------------------------------------------------------------
-# Usage: With the push-button wrapper script run.sh
-# ------------------------------------------------------------------------------
-o Why use Excel or a similar utility?
+Contents.
+------------------------------------------------------------------------------
 
-    Using such an application provides a simple tabular interface which can often
+* Usage with the wrapper script
+* Understanding Common Errors
+* MISC setup info that might be useful
+
+------------------------------------------------------------------------------
+Usage: With the push-button wrapper script run.sh
+------------------------------------------------------------------------------
+
+* Why use Excel or a similar utility?
+
+  Using such an application provides a simple tabular interface which can often
   be intuitive for waveform entry. Further simple formulas and rudimentary
   intelligence provided by \*office can be used advantageously to generate a
   consistent maintainable and reproducible waveform. A drawing application can be
   used, but the main issue with those is maintainability, as well as effort
   required.  The current work flow is as follows and provides human readable text
   at all points. (the csv could help with some formatting)
+
     .xlsx -> .csv -> .tex
+
   The Excel step can be overstepped and a csv can be generated directly, for
   example by parsing a VCD. This can then be back annotated if required. At the
   moment there is no recommended flow for doing this but it should be possible
   from plain vcds.
 
-o How to generate a waveform description in the XL file by filling in clocks and
+* How to generate a waveform description in the XL file by filling in clocks and
   signals.
   The description is similar to a value change dump where only a
   change/transition needs to be recorded 
@@ -64,7 +71,7 @@ o How to generate a waveform description in the XL file by filling in clocks and
   
   Seems to work with both Microsoft Excel and LibreOffice.
 
-o Save this file. Saving is important as XL will generate values from formulas.
+* Save this file. Saving is important as XL will generate values from formulas.
   Also the sheet that is in focus at the time of save will become the active
   sheet.
 
@@ -73,59 +80,31 @@ o Save this file. Saving is important as XL will generate values from formulas.
   would report the file to be read only and refuse to save.  In such instances,
   Save with a different name and save as with the old name rectifies the problem
 
-o Active sheets are useful in closing the description-render cycle.
+* Active sheets are useful in closing the description-render cycle.
 
+.. code::
   ./run.sh -wb waveforms_all.xlsx -active -disp
 
 or explicitly specifying the -ws sheet_name
 
+.. code::
   ./run.sh -wb waveforms_all.xlsx -ws <sheet_name> -disp
 
-  Use -disp, to open the rendered result. -disp can also be avoided, but a
+Use -disp, to open the rendered result. -disp can also be avoided, but a
 previously opened pdf reloaded. However, if the pdf is open from windows,
 tex will generate an ERROR. Please Refer ERROR section.
 
-o For batch conversions of all sheets from a workbook use
+* For batch conversions of all sheets from a workbook use
   
-  ./run.sh -wb waveforms_all.xlsx -all
- 
-  This will convert all sheets that are non empty. A sheet is empty if it has
+.. code::
+
+    ./run.sh -wb waveforms_all.xlsx -all
+
+
+This will convert all sheets that are non empty. A sheet is empty if it has
 no valid cell.  A sheet might unintentionally be classified as non empty, in
 such case delete the sheet or add _nt' to the end of the sheet name. This can
 be useful with sheets used to capture additional info. 
-
-.. caution::
-
-    # Common ERRORS:
-    # ------------------------------------------------------------------------------
-
-    1) Nature of Error when the CLK_MARKS section is enabled but no clock is defined
-       i.e the clock column is '0' or empty. Ideally this should be the exact copy 
-       of the clock for which the timing cycles are to be drawn, reference in the
-       cell as =<cell_containitng_the_name_of_the_clk>.
-    
-        Traceback (most recent call last):
-          File "./draw_wave_tex.py", line 565, in <module>
-            tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
-          ...
-          ...
-        sre_constants.error: nothing to repeat
-        ERROR: waveforms_template.tex convesion failed
-        
-    2) Error when the pdf is open by another application, normally from windows.
-    
-        ERROR:!I can't write on file `waveforms_template.pdf'.
-               (Press Enter to retry, or Control-D to exit; default file extension is `.pdf')
-               Please type another file name for output
-               ! Emergency stop.
-    
-    3) Nature of the error when '...' get replaced with the unicode equivalent. 
-        Traceback (most recent call last):
-          File "read_xlsx_val.py", line 68, in <module>
-            result = convert_to_csv(ws_active)
-          File "read_xlsx_val.py", line 24, in convert_to_csv
-            csv_f.writerow([cell.value for cell in row])
-        UnicodeEncodeError: 'ascii' codec can't encode character u'\u2026' in position 6: ordinal not in range(128)
 
 
 
@@ -148,21 +127,21 @@ be useful with sheets used to capture additional info.
 
     mkdir -p /home/user/local/lib/python2.6/site-packages/
 
- The required packages for python may not be available on the host or a
- managed system. Python allows mechanisms to install them locally. Creating
- vritiual env is another option.
- with both pip available and access to the outside world, pip_install --user should
- suffice for majority of the cases. This should default to ~/.local/ and
- python would search this path by default.
+The required packages for python may not be available on the host or a
+managed system. Python allows mechanisms to install them locally. Creating
+vritiual env is another option.
+with both pip available and access to the outside world, pip_install --user should
+suffice for majority of the cases. This should default to ~/.local/ and
+python would search this path by default.
 
 .. code::
 
     pip_install --user <package> 
 
- A messy way is to use easy_install or using the setup.py from a tarball. Both
- these can lead to problems.
+A messy way is to use easy_install or using the setup.py from a tarball. Both
+these can lead to problems.
 
- .. code::
+.. code::
 
     echo $PYTHONPATH
 
@@ -178,6 +157,7 @@ be useful with sheets used to capture additional info.
 ------------------------------------------------------------------------------
 Using the anaconda distribution
 ------------------------------------------------------------------------------
+
 .. code::
 
     module use /opt/ipython/modulefiles
@@ -196,15 +176,50 @@ Using the anaconda distribution
 
 Push button script
 ------------------------------------------------------------------------------
-cd <project_dir_containing_xlsx>
 
-../run.sh -wb waveforms_all.xlsx -all -disp
+.. code:: shell
 
--disp : open xpdf after every render
--all  : process all non empty sheets in xlsx, A sheet is considerd non empty if atleast one cell has a value.
-        Check for validity of a sheet for parsing to produce waveforms is not considered.
--active: render only the active sheet. Along with display can be used for development.
-<-ws sheet_name> : provide the explicit sheet name.
+    cd <project_dir_containing_xlsx>
+    
+    ../run.sh -wb waveforms_all.xlsx -all -disp
+    
+    -disp : open xpdf after every render
+    -all  : process all non empty sheets in xlsx, A sheet is considerd non empty if atleast one cell has a value.
+            Check for validity of a sheet for parsing to produce waveforms is not considered.
+    -active: render only the active sheet. Along with display can be used for development.
+    <-ws sheet_name> : provide the explicit sheet name.
+    
+    svg: By default svg and png are generated. scg's are generally large files and hence the default dfeature will be turned off in the future.
 
-svg: By default svg and png are generated. scg's are generally large files and hence the default dfeature will be turned off in the future.
+.. caution::
 
+Common ERRORS:
+------------------------------------------------------------------------------
+
+1) Nature of Error when the CLK_MARKS section is enabled but no clock is defined
+   i.e the clock column is '0' or empty. Ideally this should be the exact copy 
+   of the clock for which the timing cycles are to be drawn, reference in the
+   cell as =<cell_containitng_the_name_of_the_clk>.
+
+    Traceback (most recent call last):
+      File "./draw_wave_tex.py", line 565, in <module>
+        tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
+      ...
+      ...
+    sre_constants.error: nothing to repeat
+    ERROR: waveforms_template.tex convesion failed
+    
+2) Error when the pdf is open by another application, normally from windows.
+
+    ERROR:!I can't write on file \`waveforms_template.pdf\'.
+           (Press Enter to retry, or Control-D to exit; default file extension is \`.pdf\')
+           Please type another file name for output
+           ! Emergency stop.
+
+3) Nature of the error when '...' get replaced with the unicode equivalent. 
+    Traceback (most recent call last):
+      File "read_xlsx_val.py", line 68, in <module>
+        result = convert_to_csv(ws_active)
+      File "read_xlsx_val.py", line 24, in convert_to_csv
+        csv_f.writerow([cell.value for cell in row])
+    UnicodeEncodeError: 'ascii' codec can't encode character u'\u2026' in position 6: ordinal not in range(128)
