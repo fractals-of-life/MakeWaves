@@ -12,7 +12,9 @@ Motivation
 ================================================================================
 
 Provide a simple scripted interface to produce timing diagrams to facilitate an
-accurate concise representation of logical design intent.
+accurate concise representation of RTL design intent much like that possible
+with synthesizable HDL.
+
     + Maintain consistent style and output
     + Decouple stylization from source
     + Ease maintenance by reducing overheads
@@ -42,6 +44,8 @@ Species spotted in the wild
 
     tikz-timing       No              - Latex Bundle(steep learning), Error prone
                                       - extensible with well rendered output
+                                      - However we could wrap TeX to hide
+                                        complexity**
 
     visio             yes             - Templated vector editor
                                       - Time consuming, high maintenance overhead
@@ -161,19 +165,61 @@ Clone from
 
 .. code-block:: shell 
 
-    $ git clone /work/scratch3/nairajay/waveform_draw
+    $ git clone https://github.com/fractals-of-life/MakeWaves 
 
 
 Snap shot of directory:
 
 .. code-block:: shell
 
-    7867  2018-04-11 17:08 README
-    2743  2018-04-09 17:01 read_xlsx_val.py
-    26677 2018-04-10 13:28 draw_wave_tex.py
-    59733 2018-04-10 14:19 waveforms_template.pdf
-    27277 2018-04-10 12:57 waveforms__template.xlsx
-    6071  2018-04-10 14:21 run.sh
+    |-- README.rst
+    |-- doc
+    |   |-- Makefile
+    |   |-- README
+    |   |-- build
+    |   `-- source
+    |       |-- _static
+    |       |-- _templates
+    |       |-- async.rst
+    |       |-- conf.py
+    |       |-- images
+    |       |   |-- *.png
+    |       |-- index.rst
+    |       |-- intro.rst
+    |       |-- step_by_step.rst
+    |       `-- walkthrough.rst
+    |-- py_scripts
+    |   |-- draw_wave_tex.py
+    |   `-- read_xlsx_val.py
+    |-- run.sh
+    |-- waveforms_template
+    |   |-- job_list
+    |   |-- async.aux
+    |   |-- async.csv
+    |   |-- async.log
+    |   |-- async.pdf
+    |   |-- async.png
+    |   |-- async.svg
+    |   |-- async.tex
+    |   |-- template.aux
+    |   |-- template.csv
+    |   |-- template.log
+    |   |-- template.pdf
+    |   |-- template.png
+    |   |-- template.svg
+    |   |-- template.tex
+    |   |-- waveforms__template.aux
+    |   |-- waveforms__template.log
+    |   |-- waveforms__template.pdf
+    |   |-- waveforms__template.tex
+    |   |-- waveforms__template.xlsx
+    |   |-- waveforms_template.aux
+    |   |-- waveforms_template.csv
+    |   |-- waveforms_template.log
+    |   |-- waveforms_template.pdf
+    |   |-- waveforms_template.png
+    |   |-- waveforms_template.svg
+    |   `-- waveforms_template.tex
 
 Versions
 --------------------------------------------------------------------------------
@@ -195,20 +241,38 @@ Putting it to work
 The push-button wrappper script run.sh
 --------------------------------------------------------------------------------
 
+To use the push button wrapper script the following directory structure is
+recommended::
+
+  MakeWaves
+  + README.rst
+  + py_script
+  + doc
+  + dwsign_work_dir_1
+  | + design1.xlsx
+  + design_work_dir_2
+  | + design2.xlsx
+  ` run.sh
+
+where run.sh is the push button script.
+To use the script cd to the directory where the xlsx file is and use the
+command as follows. All intermediate outputs and waveform will now be collected
+in your design directory. 
+
 tcsh command line:
 
 .. code-block:: shell
 
-  ./run.sh -wb *<workbook.xlsx>* [ -ws *<sheet_name>* | -all | -active ] -disp
+  ../run.sh -wb *<workbook.xlsx>* [ -ws *<sheet_name>* | -all | -active ] -disp
 
-* -wb : workbook file name with xlsx extension
-
-  * -ws : Name of the sheet within the worksheet
-  * -all: All available sheets within the specified workbook 
-  * -active : The active worksheet, which is the worksheet in focus when the
+    -wb : workbook file name with xlsx extension
+    
+    -ws : Name of the sheet within the worksheet
+    -all: All available sheets within the specified workbook 
+    -active : The active worksheet, which is the worksheet in focus when the
     file was saved.
-
-* -disp : display the rendered output with xpdf
+    
+    -disp : display the rendered output with xpdf
 
 #. Generate a waveform description in the XL file by filling in clocks and
    signals.  The description is similar to a value change dump where only a
@@ -252,7 +316,7 @@ tcsh command line:
   
 .. code-block:: shell
 
-  ./run.sh -wb waveforms_all.xlsx -all
+  ../run.sh -wb waveforms_all.xlsx -all
  
 To convert all sheets that are non empty. A sheet is empty if it has
 no valid cell.  A sheet might unintentionally be classified as non empty, in
@@ -263,13 +327,13 @@ be useful with sheets used to capture additional info.
 
 .. code-block:: shell
 
-  ./run.sh -wb waveforms_all.xlsx -active -disp
+  ../run.sh -wb waveforms_all.xlsx -active -disp
 
 or explicitly specifying the -ws sheet_name
 
 .. code-block:: shell
 
-  ./run.sh -wb waveforms_all.xlsx -ws <sheet_name> -disp
+  ../run.sh -wb waveforms_all.xlsx -ws <sheet_name> -disp
 
 Use **-disp**, to open the rendered result. -disp can also be avoided, but a
 previously opened pdf reloaded. However, if the pdf is open from windows,
@@ -340,7 +404,7 @@ The following is needed for xlstocsv conversion from command line
 
 .. code-block:: shell
 
-    mkdir -p /home/nairajay/local/lib/python2.6/site-packages/
+    mkdir -p /home/username/local/lib/python2.6/site-packages/
 
 The required packages for python may not be available on the host or a
 managed system. Python allows mechanisms to install them locally. Creating
@@ -351,7 +415,7 @@ python would search this path by default.
 
 .. code-block:: shell
 
-    mkdir -p /home/nairajay/local/lib/python2.6/site-packages/
+    mkdir -p /home/username/local/lib/python2.6/site-packages/
 
     pip_install --user <package> 
 
@@ -364,7 +428,7 @@ these can lead to problems.
 
     # append if not empty
     # Note: python version specific
-    setenv PYTHONPATH /home/<user>/local/lib/<python_version>/site-packages
+    setenv PYTHONPATH /home/username/local/lib/<python_version>/site-packages
     # run once
     easy_install --prefix=$HOME/local xlsx2csv
 
