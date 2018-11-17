@@ -107,21 +107,19 @@ such case delete the sheet or add _nt' to the end of the sheet name. This can
 be useful with sheets used to capture additional info. 
 
 
+MISC Notes
+------------------------------------------------------------------------------
 
- MISC Notes
- ------------------------------------------------------------------------------
+Getting hold of Required packages
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+Script uses the following packages
+xls2csv, openpyxl
 
- ------------------------------------------------------------------------------
- Getting hold of Required packages
- ------------------------------------------------------------------------------
- Script uses the following packages
- xls2csv, openpyxl
- 
- There is a specific version check for python, at the moment this is hardcoded
- to 2.7.10, you may override this in the script.
+There is a specific version check for python, at the moment this is hardcoded
+to 2.7.10, you may override this in the script.
 
- The following is needed for xlstocsv converion from command line
+The following is needed for xlstocsv converion from command line
 
 .. code::
 
@@ -154,9 +152,8 @@ these can lead to problems.
 
     easy_install --prefix=$HOME/local xlsx2csv
 
-------------------------------------------------------------------------------
 Using the anaconda distribution
-------------------------------------------------------------------------------
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. code::
 
@@ -175,7 +172,7 @@ Using the anaconda distribution
     inkscape -z -f waveforms_cancel_sane.pdf -l waveforms_cancel_sane.svg
 
 Push button script
-------------------------------------------------------------------------------
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. code:: shell
 
@@ -191,16 +188,16 @@ Push button script
     
     svg: By default svg and png are generated. scg's are generally large files and hence the default dfeature will be turned off in the future.
 
-.. caution::
-
 Common ERRORS:
 ------------------------------------------------------------------------------
 
-1) Nature of Error when the CLK_MARKS section is enabled but no clock is defined
-   i.e the clock column is '0' or empty. Ideally this should be the exact copy 
-   of the clock for which the timing cycles are to be drawn, reference in the
-   cell as =<cell_containitng_the_name_of_the_clk>.
 
+1. Nature of Error when the CLK_MARKS section is enabled but no clock is
+defined i.e the clock column is '0' or empty. Ideally this should be the
+exact copy of the clock for which the timing cycles are to be drawn,
+reference in the cell as =<cell_containitng_the_name_of_the_clk>. 
+
+::
     Traceback (most recent call last):
       File "./draw_wave_tex.py", line 565, in <module>
         tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
@@ -209,14 +206,15 @@ Common ERRORS:
     sre_constants.error: nothing to repeat
     ERROR: waveforms_template.tex convesion failed
     
-2) Error when the pdf is open by another application, normally from windows.
-
+2. Error when the pdf is open by another application, normally from windows.
+::
     ERROR:!I can't write on file \`waveforms_template.pdf\'.
            (Press Enter to retry, or Control-D to exit; default file extension is \`.pdf\')
            Please type another file name for output
            ! Emergency stop.
 
-3) Nature of the error when '...' get replaced with the unicode equivalent. 
+3. Nature of the error when '...' get replaced with the unicode equivalent.
+::
     Traceback (most recent call last):
       File "read_xlsx_val.py", line 68, in <module>
         result = convert_to_csv(ws_active)
