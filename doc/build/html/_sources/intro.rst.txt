@@ -1,119 +1,4 @@
-.. _intro:
-
-================================================================================
-Intro
-================================================================================
-
-.. figure:: ./images/title_image_merge.png
-   :scale: 60%
-   :alt: An empty template
-
-Motivation
-================================================================================
-
-Provide a simple scripted interface to produce timing diagrams to facilitate an
-accurate concise representation of logical design intent.
-    + Maintain consistent style and output
-    + Decouple stylization from source
-    + Ease maintenance by reducing overheads
-    + Rich feature set to annotate waveforms.
-    + possible Tex Integration/automation for scientific documentation.
-    
-Species spotted in the wild
-````````````````````````````````````````````````````````````````````````````````
-.. table:: Comparisons of similar tools
-
-    ================= =============== ===============================================
-    Tool name         License         Notes:
-    ================= =============== ===============================================
-    TimingDesigner    yes             - Stood the test of time.
-                                      - Good for datasheet.
-
-    TimingEditor      No              - GUI based 
-
-    TimingGen         No              - GUI based 
-
-    TimingAnalyzer    No\*            - (Java + Jython scripts) 
-                                      - Remarkably Like TimingDesigner
-                                      - in beta, opensourced
-
-    WaveDrom          No              - browser based
-                                      - good for simple diagrams.
-
-    tikz-timing       No              - Latex Bundle(steep learning), Error prone
-                                      - extensible with well rendered output
-
-    visio             yes             - Templated vector editor
-                                      - Time consuming, high maintenance overhead
-                                      - Variable Quality of outputs
-
-    word/ppt/excel    yes             - diagram mode based on visio 
-
-    vector editors    yes/no          - inkscape/omnigraffle etc.
-    ================= =============== ===============================================
-
-Why another method?
-````````````````````````````````````````````````````````````````````````````````
-Most tools emulate the familiar look feel and functionality of timing designer.
-They are great for producing data sheets or capturing characterized I/O timing,
-However they some what lack when it comes to capturing and communication logic
-design intend. Advanced features offered by TimingDesigner seem excessive for
-pure clock referenced digital design tasks were the meaning is captured best by
-way of dependencies, flow graphs and annotations. WaveDrom comes close to this
-objective with a simple clean intuitive method to produce consistent renders.
-However it soon hits the limit for more complicated waveforms
-
-How is **MakeWaves** different?
-````````````````````````````````````````````````````````````````````````````````
-
-**MakeWaves** started with the objective of drawing consistent timing diagrams
-from a seemingly crude, but quick mark-up description of the logic function in a
-manner similar to a value change dump. Under the hood it invokes Latex with
-appropriate libraries, and tries to conceal the required heavy latex mark-up
-from the user. The diagram is defined with simple intuitive mark-ups capable
-of abstracting information typically in a timing diagram, with an easy
-template, allowing diagrams to be rendered from a tabular form in Excel. 
-
-Why use Excel or a similar utility?
-````````````````````````````````````````````````````````````````````````````````
-Digital design waveforms in most cases can be represented with tabular data.  A
-spreadsheet application provides a simple, familiar tabular interface which
-can often be intuitive for waveform entry. Further, simple formulas and
-rudimentary intelligence provided by \*office can be used advantageously to
-generate a consistent maintainable and reproducible waveform. A drawing
-application can be used, but are often limited by maintainenance overheads, and
-a significant effort overhead. While using such an application significant time
-is often spent on aligning and positioning elements.
-**MakeWaves** provides a work flow with human readable intermediate
-files at many stages. Python and TeX should provide easy extensibility to the
-basic feature set::
-           
-    .xlsx ---> .csv ---> .tex ---> pdf,svg,png
-          (py)      (py)     (TeX)
-
-As an example, the Excel step can be bypassed and a csv generated directly,
-for example by parsing a VCD. This can then be back annotated if required. At
-the moment this flow is still conceptual but python/tcl/perl scripts could be
-deployed to parse plain vcds and provide the required translation. The method
-still would not be straightforward as vcd's capture value change by time units,
-not active clock edges.
-
-The original source xlsx is a .zip of several xml files which are interpreted by
-excel. So ideally this unzipped version can be maintained under version control
-thus avoiding the need for versionaing a binary file. There might even be
-automation available within a versioning system suchas Git which could make this
-process transparent. 
-
-In addition to traditional source code veroning systems cloud based storage
-such as those provided by iShare etc with windows integration might be another
-form of revision control
-
-In terms of the Dreaded USP
---------------------------------------------------------------------------------
-* provides a consitent less fiddly method for annotation.
-* build on what was lying around in the shed.
-* a method to deploy tikz-timing within TeX.
-* nothing proprietary. Implement/improve/enhance some scripting and modify to your hearts content. It was all done in about 2 weeks. The documentation dragged along for  months!
+.. _getting_started:
 
 ================================================================================
 Getting Started
@@ -161,19 +46,61 @@ Clone from
 
 .. code-block:: shell 
 
-    $ git clone /work/scratch3/nairajay/waveform_draw
+    $ git clone https://github.com/fractals-of-life/MakeWaves 
 
 
 Snap shot of directory:
 
 .. code-block:: shell
 
-    7867  2018-04-11 17:08 README
-    2743  2018-04-09 17:01 read_xlsx_val.py
-    26677 2018-04-10 13:28 draw_wave_tex.py
-    59733 2018-04-10 14:19 waveforms_template.pdf
-    27277 2018-04-10 12:57 waveforms__template.xlsx
-    6071  2018-04-10 14:21 run.sh
+    |-- README.rst
+    |-- doc
+    |   |-- Makefile
+    |   |-- README
+    |   |-- build
+    |   `-- source
+    |       |-- _static
+    |       |-- _templates
+    |       |-- async.rst
+    |       |-- conf.py
+    |       |-- images
+    |       |   |-- *.png
+    |       |-- index.rst
+    |       |-- intro.rst
+    |       |-- step_by_step.rst
+    |       `-- walkthrough.rst
+    |-- py_scripts
+    |   |-- draw_wave_tex.py
+    |   `-- read_xlsx_val.py
+    |-- run.sh
+    |-- waveforms_template
+    |   |-- job_list
+    |   |-- async.aux
+    |   |-- async.csv
+    |   |-- async.log
+    |   |-- async.pdf
+    |   |-- async.png
+    |   |-- async.svg
+    |   |-- async.tex
+    |   |-- template.aux
+    |   |-- template.csv
+    |   |-- template.log
+    |   |-- template.pdf
+    |   |-- template.png
+    |   |-- template.svg
+    |   |-- template.tex
+    |   |-- waveforms__template.aux
+    |   |-- waveforms__template.log
+    |   |-- waveforms__template.pdf
+    |   |-- waveforms__template.tex
+    |   |-- waveforms__template.xlsx
+    |   |-- waveforms_template.aux
+    |   |-- waveforms_template.csv
+    |   |-- waveforms_template.log
+    |   |-- waveforms_template.pdf
+    |   |-- waveforms_template.png
+    |   |-- waveforms_template.svg
+    |   `-- waveforms_template.tex
 
 Versions
 --------------------------------------------------------------------------------
@@ -195,20 +122,38 @@ Putting it to work
 The push-button wrappper script run.sh
 --------------------------------------------------------------------------------
 
+To use the push button wrapper script the following directory structure is
+recommended::
+
+  MakeWaves
+  + README.rst
+  + py_script
+  + doc
+  + dwsign_work_dir_1
+  | + design1.xlsx
+  + design_work_dir_2
+  | + design2.xlsx
+  ` run.sh
+
+where run.sh is the push button script.
+To use the script cd to the directory where the xlsx file is and use the
+command as follows. All intermediate outputs and waveform will now be collected
+in your design directory. 
+
 tcsh command line:
 
 .. code-block:: shell
 
-  ./run.sh -wb *<workbook.xlsx>* [ -ws *<sheet_name>* | -all | -active ] -disp
+  ../run.sh -wb *<workbook.xlsx>* [ -ws *<sheet_name>* | -all | -active ] -disp
 
-* -wb : workbook file name with xlsx extension
-
-  * -ws : Name of the sheet within the worksheet
-  * -all: All available sheets within the specified workbook 
-  * -active : The active worksheet, which is the worksheet in focus when the
+    -wb : workbook file name with xlsx extension
+    
+    -ws : Name of the sheet within the worksheet
+    -all: All available sheets within the specified workbook 
+    -active : The active worksheet, which is the worksheet in focus when the
     file was saved.
-
-* -disp : display the rendered output with xpdf
+    
+    -disp : display the rendered output with xpdf
 
 #. Generate a waveform description in the XL file by filling in clocks and
    signals.  The description is similar to a value change dump where only a
@@ -252,7 +197,7 @@ tcsh command line:
   
 .. code-block:: shell
 
-  ./run.sh -wb waveforms_all.xlsx -all
+  ../run.sh -wb waveforms_all.xlsx -all
  
 To convert all sheets that are non empty. A sheet is empty if it has
 no valid cell.  A sheet might unintentionally be classified as non empty, in
@@ -263,13 +208,13 @@ be useful with sheets used to capture additional info.
 
 .. code-block:: shell
 
-  ./run.sh -wb waveforms_all.xlsx -active -disp
+  ../run.sh -wb waveforms_all.xlsx -active -disp
 
 or explicitly specifying the -ws sheet_name
 
 .. code-block:: shell
 
-  ./run.sh -wb waveforms_all.xlsx -ws <sheet_name> -disp
+  ../run.sh -wb waveforms_all.xlsx -ws <sheet_name> -disp
 
 Use **-disp**, to open the rendered result. -disp can also be avoided, but a
 previously opened pdf reloaded. However, if the pdf is open from windows,
@@ -340,7 +285,7 @@ The following is needed for xlstocsv conversion from command line
 
 .. code-block:: shell
 
-    mkdir -p /home/nairajay/local/lib/python2.6/site-packages/
+    mkdir -p /home/username/local/lib/python2.6/site-packages/
 
 The required packages for python may not be available on the host or a
 managed system. Python allows mechanisms to install them locally. Creating
@@ -351,7 +296,7 @@ python would search this path by default.
 
 .. code-block:: shell
 
-    mkdir -p /home/nairajay/local/lib/python2.6/site-packages/
+    mkdir -p /home/username/local/lib/python2.6/site-packages/
 
     pip_install --user <package> 
 
@@ -364,7 +309,7 @@ these can lead to problems.
 
     # append if not empty
     # Note: python version specific
-    setenv PYTHONPATH /home/<user>/local/lib/<python_version>/site-packages
+    setenv PYTHONPATH /home/username/local/lib/<python_version>/site-packages
     # run once
     easy_install --prefix=$HOME/local xlsx2csv
 

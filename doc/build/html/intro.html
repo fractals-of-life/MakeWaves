@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Intro &#8212; MakeWaves beta documentation</title>
+    <title>Getting Started &#8212; MakeWaves beta documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="_static/documentation_options.js"></script>
@@ -16,7 +16,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Template and Markup" href="walkthrough.html" />
+    <link rel="next" title="Getting Started" href="getting_started.html" />
     <link rel="prev" title="MakeWaves" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -32,179 +32,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="intro">
-<span id="id1"></span><h1>Intro<a class="headerlink" href="#intro" title="Permalink to this headline">¶</a></h1>
-<div class="figure">
-<a class="reference internal image-reference" href="_images/title_image_merge.png"><img alt="An empty template" src="_images/title_image_merge.png" style="width: 726.6px; height: 322.2px;" /></a>
-</div>
-<div class="section" id="motivation">
-<h2>Motivation<a class="headerlink" href="#motivation" title="Permalink to this headline">¶</a></h2>
-<p>Provide a simple scripted interface to produce timing diagrams to facilitate an
-accurate concise representation of logical design intent.</p>
-<blockquote>
-<div><ul class="simple">
-<li>Maintain consistent style and output</li>
-<li>Decouple stylization from source</li>
-<li>Ease maintenance by reducing overheads</li>
-<li>Rich feature set to annotate waveforms.</li>
-<li>possible Tex Integration/automation for scientific documentation.</li>
-</ul>
-</div></blockquote>
-<div class="section" id="species-spotted-in-the-wild">
-<h3>Species spotted in the wild<a class="headerlink" href="#species-spotted-in-the-wild" title="Permalink to this headline">¶</a></h3>
-<table border="1" class="docutils" id="id2">
-<caption><span class="caption-text">Comparisons of similar tools</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col width="22%" />
-<col width="19%" />
-<col width="59%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Tool name</th>
-<th class="head">License</th>
-<th class="head">Notes:</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>TimingDesigner</td>
-<td>yes</td>
-<td><ul class="first last simple">
-<li>Stood the test of time.</li>
-<li>Good for datasheet.</li>
-</ul>
-</td>
-</tr>
-<tr class="row-odd"><td>TimingEditor</td>
-<td>No</td>
-<td><ul class="first last simple">
-<li>GUI based</li>
-</ul>
-</td>
-</tr>
-<tr class="row-even"><td>TimingGen</td>
-<td>No</td>
-<td><ul class="first last simple">
-<li>GUI based</li>
-</ul>
-</td>
-</tr>
-<tr class="row-odd"><td>TimingAnalyzer</td>
-<td>No*</td>
-<td><ul class="first last simple">
-<li>(Java + Jython scripts)</li>
-<li>Remarkably Like TimingDesigner</li>
-<li>in beta, opensourced</li>
-</ul>
-</td>
-</tr>
-<tr class="row-even"><td>WaveDrom</td>
-<td>No</td>
-<td><ul class="first last simple">
-<li>browser based</li>
-<li>good for simple diagrams.</li>
-</ul>
-</td>
-</tr>
-<tr class="row-odd"><td>tikz-timing</td>
-<td>No</td>
-<td><ul class="first last simple">
-<li>Latex Bundle(steep learning), Error prone</li>
-<li>extensible with well rendered output</li>
-</ul>
-</td>
-</tr>
-<tr class="row-even"><td>visio</td>
-<td>yes</td>
-<td><ul class="first last simple">
-<li>Templated vector editor</li>
-<li>Time consuming, high maintenance overhead</li>
-<li>Variable Quality of outputs</li>
-</ul>
-</td>
-</tr>
-<tr class="row-odd"><td>word/ppt/excel</td>
-<td>yes</td>
-<td><ul class="first last simple">
-<li>diagram mode based on visio</li>
-</ul>
-</td>
-</tr>
-<tr class="row-even"><td>vector editors</td>
-<td>yes/no</td>
-<td><ul class="first last simple">
-<li>inkscape/omnigraffle etc.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="why-another-method">
-<h3>Why another method?<a class="headerlink" href="#why-another-method" title="Permalink to this headline">¶</a></h3>
-<p>Most tools emulate the familiar look feel and functionality of timing designer.
-They are great for producing data sheets or capturing characterized I/O timing,
-However they some what lack when it comes to capturing and communication logic
-design intend. Advanced features offered by TimingDesigner seem excessive for
-pure clock referenced digital design tasks were the meaning is captured best by
-way of dependencies, flow graphs and annotations. WaveDrom comes close to this
-objective with a simple clean intuitive method to produce consistent renders.
-However it soon hits the limit for more complicated waveforms</p>
-</div>
-<div class="section" id="how-is-makewaves-different">
-<h3>How is <strong>MakeWaves</strong> different?<a class="headerlink" href="#how-is-makewaves-different" title="Permalink to this headline">¶</a></h3>
-<p><strong>MakeWaves</strong> started with the objective of drawing consistent timing diagrams
-from a seemingly crude, but quick mark-up description of the logic function in a
-manner similar to a value change dump. Under the hood it invokes Latex with
-appropriate libraries, and tries to conceal the required heavy latex mark-up
-from the user. The diagram is defined with simple intuitive mark-ups capable
-of abstracting information typically in a timing diagram, with an easy
-template, allowing diagrams to be rendered from a tabular form in Excel.</p>
-</div>
-<div class="section" id="why-use-excel-or-a-similar-utility">
-<h3>Why use Excel or a similar utility?<a class="headerlink" href="#why-use-excel-or-a-similar-utility" title="Permalink to this headline">¶</a></h3>
-<p>Digital design waveforms in most cases can be represented with tabular data.  A
-spreadsheet application provides a simple, familiar tabular interface which
-can often be intuitive for waveform entry. Further, simple formulas and
-rudimentary intelligence provided by *office can be used advantageously to
-generate a consistent maintainable and reproducible waveform. A drawing
-application can be used, but are often limited by maintainenance overheads, and
-a significant effort overhead. While using such an application significant time
-is often spent on aligning and positioning elements.
-<strong>MakeWaves</strong> provides a work flow with human readable intermediate
-files at many stages. Python and TeX should provide easy extensibility to the
-basic feature set:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.</span><span class="n">xlsx</span> <span class="o">---&gt;</span> <span class="o">.</span><span class="n">csv</span> <span class="o">---&gt;</span> <span class="o">.</span><span class="n">tex</span> <span class="o">---&gt;</span> <span class="n">pdf</span><span class="p">,</span><span class="n">svg</span><span class="p">,</span><span class="n">png</span>
-      <span class="p">(</span><span class="n">py</span><span class="p">)</span>      <span class="p">(</span><span class="n">py</span><span class="p">)</span>     <span class="p">(</span><span class="n">TeX</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>As an example, the Excel step can be bypassed and a csv generated directly,
-for example by parsing a VCD. This can then be back annotated if required. At
-the moment this flow is still conceptual but python/tcl/perl scripts could be
-deployed to parse plain vcds and provide the required translation. The method
-still would not be straightforward as vcd’s capture value change by time units,
-not active clock edges.</p>
-<p>The original source xlsx is a .zip of several xml files which are interpreted by
-excel. So ideally this unzipped version can be maintained under version control
-thus avoiding the need for versionaing a binary file. There might even be
-automation available within a versioning system suchas Git which could make this
-process transparent.</p>
-<p>In addition to traditional source code veroning systems cloud based storage
-such as those provided by iShare etc with windows integration might be another
-form of revision control</p>
-<div class="section" id="in-terms-of-the-dreaded-usp">
-<h4>In terms of the Dreaded USP<a class="headerlink" href="#in-terms-of-the-dreaded-usp" title="Permalink to this headline">¶</a></h4>
-<ul class="simple">
-<li>provides a consitent less fiddly method for annotation.</li>
-<li>build on what was lying around in the shed.</li>
-<li>a method to deploy tikz-timing within TeX.</li>
-<li>nothing proprietary. Implement/improve/enhance some scripting and modify to your hearts content. It was all done in about 2 weeks. The documentation dragged along for  months!</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div class="section" id="getting-started">
-<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="getting-started">
+<span id="id1"></span><h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="pre-requisites">
 <h2>Pre requisites<a class="headerlink" href="#pre-requisites" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="excel">
@@ -247,16 +76,58 @@ distributions. MikTex can be installed on windows/Mac etc.<ul>
 <div class="section" id="get-the-scripts">
 <h3>Get the scripts<a class="headerlink" href="#get-the-scripts" title="Permalink to this headline">¶</a></h3>
 <p>Clone from</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ git clone /work/scratch3/nairajay/waveform_draw
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/fractals-of-life/MakeWaves
 </pre></div>
 </div>
 <p>Snap shot of directory:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="m">7867</span>  2018-04-11 17:08 README
-<span class="m">2743</span>  2018-04-09 17:01 read_xlsx_val.py
-<span class="m">26677</span> 2018-04-10 13:28 draw_wave_tex.py
-<span class="m">59733</span> 2018-04-10 14:19 waveforms_template.pdf
-<span class="m">27277</span> 2018-04-10 12:57 waveforms__template.xlsx
-<span class="m">6071</span>  2018-04-10 14:21 run.sh
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="p">|</span>-- README.rst
+<span class="p">|</span>-- doc
+<span class="p">|</span>   <span class="p">|</span>-- Makefile
+<span class="p">|</span>   <span class="p">|</span>-- README
+<span class="p">|</span>   <span class="p">|</span>-- build
+<span class="p">|</span>   <span class="sb">`</span>-- <span class="nb">source</span>
+<span class="p">|</span>       <span class="p">|</span>-- _static
+<span class="p">|</span>       <span class="p">|</span>-- _templates
+<span class="p">|</span>       <span class="p">|</span>-- async.rst
+<span class="p">|</span>       <span class="p">|</span>-- conf.py
+<span class="p">|</span>       <span class="p">|</span>-- images
+<span class="p">|</span>       <span class="p">|</span>   <span class="p">|</span>-- *.png
+<span class="p">|</span>       <span class="p">|</span>-- index.rst
+<span class="p">|</span>       <span class="p">|</span>-- intro.rst
+<span class="p">|</span>       <span class="p">|</span>-- step_by_step.rst
+<span class="p">|</span>       <span class="sb">`</span>-- walkthrough.rst
+<span class="p">|</span>-- py_scripts
+<span class="p">|</span>   <span class="p">|</span>-- draw_wave_tex.py
+<span class="p">|</span>   <span class="sb">`</span>-- read_xlsx_val.py
+<span class="p">|</span>-- run.sh
+<span class="p">|</span>-- waveforms_template
+<span class="p">|</span>   <span class="p">|</span>-- job_list
+<span class="p">|</span>   <span class="p">|</span>-- async.aux
+<span class="p">|</span>   <span class="p">|</span>-- async.csv
+<span class="p">|</span>   <span class="p">|</span>-- async.log
+<span class="p">|</span>   <span class="p">|</span>-- async.pdf
+<span class="p">|</span>   <span class="p">|</span>-- async.png
+<span class="p">|</span>   <span class="p">|</span>-- async.svg
+<span class="p">|</span>   <span class="p">|</span>-- async.tex
+<span class="p">|</span>   <span class="p">|</span>-- template.aux
+<span class="p">|</span>   <span class="p">|</span>-- template.csv
+<span class="p">|</span>   <span class="p">|</span>-- template.log
+<span class="p">|</span>   <span class="p">|</span>-- template.pdf
+<span class="p">|</span>   <span class="p">|</span>-- template.png
+<span class="p">|</span>   <span class="p">|</span>-- template.svg
+<span class="p">|</span>   <span class="p">|</span>-- template.tex
+<span class="p">|</span>   <span class="p">|</span>-- waveforms__template.aux
+<span class="p">|</span>   <span class="p">|</span>-- waveforms__template.log
+<span class="p">|</span>   <span class="p">|</span>-- waveforms__template.pdf
+<span class="p">|</span>   <span class="p">|</span>-- waveforms__template.tex
+<span class="p">|</span>   <span class="p">|</span>-- waveforms__template.xlsx
+<span class="p">|</span>   <span class="p">|</span>-- waveforms_template.aux
+<span class="p">|</span>   <span class="p">|</span>-- waveforms_template.csv
+<span class="p">|</span>   <span class="p">|</span>-- waveforms_template.log
+<span class="p">|</span>   <span class="p">|</span>-- waveforms_template.pdf
+<span class="p">|</span>   <span class="p">|</span>-- waveforms_template.png
+<span class="p">|</span>   <span class="p">|</span>-- waveforms_template.svg
+<span class="p">|</span>   <span class="sb">`</span>-- waveforms_template.tex
 </pre></div>
 </div>
 <div class="section" id="versions">
@@ -281,20 +152,36 @@ or baseline mode and  :r selects the annotation colour.
 <li>MISC set-up info that might be useful</li>
 </ul>
 </div></blockquote>
-<p>tcsh command line:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./run.sh -wb *&lt;workbook.xlsx&gt;* <span class="o">[</span> -ws *&lt;sheet_name&gt;* <span class="p">|</span> -all <span class="p">|</span> -active <span class="o">]</span> -disp
+<p>To use the push button wrapper script the following directory structure is
+recommended:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>MakeWaves
++ README.rst
++ py_script
++ doc
++ dwsign_work_dir_1
+| + design1.xlsx
++ design_work_dir_2
+| + design2.xlsx
+` run.sh
 </pre></div>
 </div>
-<ul class="simple">
-<li>-wb : workbook file name with xlsx extension<ul>
-<li>-ws : Name of the sheet within the worksheet</li>
-<li>-all: All available sheets within the specified workbook</li>
-<li>-active : The active worksheet, which is the worksheet in focus when the
-file was saved.</li>
-</ul>
-</li>
-<li>-disp : display the rendered output with xpdf</li>
-</ul>
+<p>where run.sh is the push button script.
+To use the script cd to the directory where the xlsx file is and use the
+command as follows. All intermediate outputs and waveform will now be collected
+in your design directory.</p>
+<p>tcsh command line:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>../run.sh -wb *&lt;workbook.xlsx&gt;* <span class="o">[</span> -ws *&lt;sheet_name&gt;* <span class="p">|</span> -all <span class="p">|</span> -active <span class="o">]</span> -disp
+
+  -wb : workbook file name with xlsx extension
+
+  -ws : Name of the sheet within the worksheet
+  -all: All available sheets within the specified workbook
+  -active : The active worksheet, which is the worksheet in focus when the
+  file was saved.
+
+  -disp : display the rendered output with xpdf
+</pre></div>
+</div>
 <ol class="arabic">
 <li><p class="first">Generate a waveform description in the XL file by filling in clocks and
 signals.  The description is similar to a value change dump where only a
@@ -338,7 +225,7 @@ sheet.</p>
 <ol class="arabic simple">
 <li>For batch conversions of all sheets from a workbook use</li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./run.sh -wb waveforms_all.xlsx -all
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>../run.sh -wb waveforms_all.xlsx -all
 </pre></div>
 </div>
 <p>To convert all sheets that are non empty. A sheet is empty if it has
@@ -348,11 +235,11 @@ be useful with sheets used to capture additional info.</p>
 <ol class="arabic simple">
 <li>Rendering only the active sheets are useful in closing the description-render cycle</li>
 </ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./run.sh -wb waveforms_all.xlsx -active -disp
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>../run.sh -wb waveforms_all.xlsx -active -disp
 </pre></div>
 </div>
 <p>or explicitly specifying the -ws sheet_name</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./run.sh -wb waveforms_all.xlsx -ws &lt;sheet_name&gt; -disp
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>../run.sh -wb waveforms_all.xlsx -ws &lt;sheet_name&gt; -disp
 </pre></div>
 </div>
 <p>Use <strong>-disp</strong>, to open the rendered result. -disp can also be avoided, but a
@@ -414,7 +301,7 @@ UnicodeEncodeError: &#39;ascii&#39; codec can&#39;t encode character u&#39;\u202
 to 2.7.10, you may override this in the script.</p>
 </div>
 <p>The following is needed for xlstocsv conversion from command line</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir -p /home/nairajay/local/lib/python2.6/site-packages/
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir -p /home/username/local/lib/python2.6/site-packages/
 </pre></div>
 </div>
 <p>The required packages for python may not be available on the host or a
@@ -423,7 +310,7 @@ virtual env is another option.
 With both pip available and access to the outside world, pip_install –user should
 suffice for majority of the cases. This should default to ~/.local/ and
 python would search this path by default.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir -p /home/nairajay/local/lib/python2.6/site-packages/
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir -p /home/username/local/lib/python2.6/site-packages/
 
 pip_install --user &lt;package&gt;
 </pre></div>
@@ -434,7 +321,7 @@ these can lead to problems.</p>
 
 <span class="c1"># append if not empty</span>
 <span class="c1"># Note: python version specific</span>
-setenv PYTHONPATH /home/&lt;user&gt;/local/lib/&lt;python_version&gt;/site-packages
+setenv PYTHONPATH /home/username/local/lib/&lt;python_version&gt;/site-packages
 <span class="c1"># run once</span>
 easy_install --prefix<span class="o">=</span><span class="nv">$HOME</span>/local xlsx2csv
 </pre></div>
@@ -464,7 +351,7 @@ inkscape -z -f waveforms_cancel_sane.pdf -l waveforms_cancel_sane.svg
 svg: By default svg and png are generated. scg&#39;s are generally large files and hence the default dfeature will be turned off in the future.
 </pre></div>
 </div>
-<div class="figure" id="id3">
+<div class="figure" id="id2">
 <a class="reference internal image-reference" href="_images/xl1.png"><img alt="An empty template" src="_images/xl1.png" style="width: 374.0px; height: 526.0px;" /></a>
 <p class="caption"><span class="caption-text">The starting excel template.</span></p>
 <div class="legend">
@@ -482,20 +369,7 @@ template will not compile or generate a waveform.</div>
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Intro</a><ul>
-<li><a class="reference internal" href="#motivation">Motivation</a><ul>
-<li><a class="reference internal" href="#species-spotted-in-the-wild">Species spotted in the wild</a></li>
-<li><a class="reference internal" href="#why-another-method">Why another method?</a></li>
-<li><a class="reference internal" href="#how-is-makewaves-different">How is <strong>MakeWaves</strong> different?</a></li>
-<li><a class="reference internal" href="#why-use-excel-or-a-similar-utility">Why use Excel or a similar utility?</a><ul>
-<li><a class="reference internal" href="#in-terms-of-the-dreaded-usp">In terms of the Dreaded USP</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li><a class="reference internal" href="#">Getting Started</a><ul>
 <li><a class="reference internal" href="#pre-requisites">Pre requisites</a><ul>
 <li><a class="reference internal" href="#excel">Excel</a></li>
 <li><a class="reference internal" href="#python-2-7">python 2,7</a></li>
@@ -517,7 +391,7 @@ template will not compile or generate a waveform.</div>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="index.html" title="previous chapter">MakeWaves</a></li>
-      <li>Next: <a href="walkthrough.html" title="next chapter">Template and Markup</a></li>
+      <li>Next: <a href="getting_started.html" title="next chapter">Getting Started</a></li>
   </ul></li>
 </ul>
 </div>

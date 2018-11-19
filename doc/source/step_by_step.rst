@@ -1,4 +1,5 @@
 .. _step_by_step: 
+
 ================================================================================
 Markup for signal names
 ================================================================================
@@ -121,9 +122,11 @@ Bus2 has no initial condition defined and the annotation although starts from ce
 Breaks
 ````````````````````````````````````````````````````````````````````````````````
 The text decoration on a signal name can be additionally controlled by
-appending any of the following modifiers to the name.  o <i> Italics
-    o <b> Bold
-    o <b><i> bold italics
+appending any of the following modifiers to the name.  
+
+    * <i> Italics
+    * <b> Bold
+    * <b><i> bold italics
 
 The motivation to include such modifiers is to enhance communication. For
 example a signal of interest may be picked out in bold, but a place holder (ie

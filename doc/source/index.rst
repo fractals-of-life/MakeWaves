@@ -11,9 +11,11 @@ MakeWaves
    :caption: Contents:
 
    intro
+   getting_started
    walkthrough
    step_by_step
    async
+   TODO
    usage/setup
    usage/errors
 
