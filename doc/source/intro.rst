@@ -62,7 +62,7 @@ Why another method?
 Most tools emulate the familiar look feel and functionality of timing designer.
 They are great for producing data sheets or capturing characterized I/O timing,
 However they some what lack when it comes to capturing and communication logic
-design intend. Advanced features offered by TimingDesigner seem excessive for
+design intent. Advanced features offered by TimingDesigner seem excessive for
 pure clock referenced digital design tasks were the meaning is captured best by
 way of dependencies, flow graphs and annotations. WaveDrom comes close to this
 objective with a simple clean intuitive method to produce consistent renders.
@@ -75,9 +75,10 @@ How is **MakeWaves** different?
 from a seemingly crude, but quick mark-up description of the logic function in a
 manner similar to a value change dump. Under the hood it invokes Latex with
 appropriate libraries, and tries to conceal the required heavy latex mark-up
-from the user. The diagram is defined with simple intuitive mark-ups capable
-of abstracting information typically in a timing diagram, with an easy
-template, allowing diagrams to be rendered from a tabular form in Excel. 
+from the user. The diagram is instead defined with simple custom mark-up capable
+of abstracting information typically contained in a timing diagram. Further, by
+following an intuitive template, diagrams can be quickly rendered from a
+tabular form, easily laid out in Excel. 
 
 Why use Excel or a similar utility?
 ````````````````````````````````````````````````````````````````````````````````

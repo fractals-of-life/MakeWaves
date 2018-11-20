@@ -22,3 +22,20 @@ Things to do
     make it easied to locate in the diagram. This mechanism needs to be automated,
     ie the Notes on the sourece can be in any order but when rendered they should
     follow raster ordering.
+
+#. **Method to mark a region**
+    Rational: To highlight a certain section of the waveform, one could draw
+    bounding boxes aronnd certain signals/time. Bounding boxes can be de dawn with
+    a tex command such as below and use a pin to identify the region. A mechanisms
+    shoulw be allowed to then reference this pin in the NOTES section to add
+    comments to it., 
+
+    .. code-block:: tex
+    
+       \draw [rounded corners, orange, thin]
+         ($(A.mid)+(-0.5,1)$) 
+         rectangle 
+         ($(Can.mid)-(-0.5,1)$)
+         node [pos=0,circle,draw,pin=region\_label] {};
+
+#. **Method to mark a region**

@@ -131,7 +131,7 @@ appending any of the following modifiers to the name.
 The motivation to include such modifiers is to enhance communication. For
 example a signal of interest may be picked out in bold, but a place holder (ie
 signal name used is not the exact name in design, or a group of signals used
-for capturing design intend) may be optionally marked in italics. As an example
+for capturing design intent) may be optionally marked in italics. As an example
 <addr_phase> or <intr_packet>, which collects all co samples signals which have
 the same timing during an address phase, or the output of the interrupt router.
 It is often convenient and effective to abstract away trivial detail such as

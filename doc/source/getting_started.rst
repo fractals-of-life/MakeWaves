@@ -186,39 +186,39 @@ tcsh command line:
    Also the sheet that is in focus at the time of save will become the active
    sheet.
 
-.. note::
-
-  | **Q: Can the file be Directly saved to the H drive?**
-  |    The file can be saved directly to the H drive, However, sometimes Excel
-  |    would report the file to be read only and refuse to save.  In such instances,
-  |    Save with a different name and save as with the old name rectifies the problem
+   .. note::
+   
+     | **Q: Can the file be Directly saved to the H drive?**
+     |    The file can be saved directly to the H drive, However, sometimes Excel
+     |    would report the file to be read only and refuse to save.  In such instances,
+     |    Save with a different name and save as with the old name rectifies the problem
 
 #. For batch conversions of all sheets from a workbook use
   
-.. code-block:: shell
-
-  ../run.sh -wb waveforms_all.xlsx -all
- 
-To convert all sheets that are non empty. A sheet is empty if it has
-no valid cell.  A sheet might unintentionally be classified as non empty, in
-such case delete the sheet or add _nt' to the end of the sheet name. This can
-be useful with sheets used to capture additional info. 
+   .. code-block:: shell
+   
+     ../run.sh -wb waveforms_all.xlsx -all
+    
+   To convert all sheets that are non empty. A sheet is empty if it has
+   no valid cell.  A sheet might unintentionally be classified as non empty, in
+   such case delete the sheet or add _nt' to the end of the sheet name. This can
+   be useful with sheets used to capture additional info. 
 
 #. Rendering only the active sheets are useful in closing the description-render cycle
 
-.. code-block:: shell
-
-  ../run.sh -wb waveforms_all.xlsx -active -disp
-
-or explicitly specifying the -ws sheet_name
-
-.. code-block:: shell
-
-  ../run.sh -wb waveforms_all.xlsx -ws <sheet_name> -disp
-
-Use **-disp**, to open the rendered result. -disp can also be avoided, but a
-previously opened pdf reloaded. However, if the pdf is open from windows,
-tex will generate an ERROR. Please Refer ERROR section.
+   .. code-block:: shell
+   
+     ../run.sh -wb waveforms_all.xlsx -active -disp
+   
+   or explicitly specifying the -ws sheet_name
+   
+   .. code-block:: shell
+   
+     ../run.sh -wb waveforms_all.xlsx -ws <sheet_name> -disp
+   
+   Use **-disp**, to open the rendered result. -disp can also be avoided, but a
+   previously opened pdf reloaded. However, if the pdf is open from windows,
+   tex will generate an ERROR. Please Refer ERROR section.
 
 
 Common ERRORS:
@@ -233,35 +233,35 @@ Common ERRORS:
    cells beyond END as containing data. Simple resolution is to select i a few columns
    after END and delete them
 
-.. code-block:: shell
-
-    Traceback (most recent call last):
-      File "./draw_wave_tex.py", line 565, in <module>
-        tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
-      ...
-      ...
-    sre_constants.error: nothing to repeat
-    ERROR: waveforms_template.tex convesion failed
+   .. code-block:: shell
+   
+       Traceback (most recent call last):
+         File "./draw_wave_tex.py", line 565, in <module>
+           tex_blk_drawedges = draw_edge_lines(signal_array, clock_edges,clk_filter, indent_level, marked_edges, tex_blk_drawedges)
+         ...
+         ...
+       sre_constants.error: nothing to repeat
+       ERROR: waveforms_template.tex convesion failed
 
 #. Error when the pdf is open by another application, normally from windows.
 
-.. code-block:: shell
-
-    ERROR:!I can't write on file `waveforms_template.pdf'.
-           (Press Enter to retry, or Control-D to exit; default file extension is `.pdf')
-           Please type another file name for output
-           ! Emergency stop.
+   .. code-block:: shell
+   
+       ERROR:!I can't write on file `waveforms_template.pdf'.
+              (Press Enter to retry, or Control-D to exit; default file extension is `.pdf')
+              Please type another file name for output
+              ! Emergency stop.
 
 #. Nature of the error when '...' get replaced with the Unicode equivalent. 
 
-.. code-block:: shell
-
-    Traceback (most recent call last):
-      File "read_xlsx_val.py", line 68, in <module>
-        result = convert_to_csv(ws_active)
-      File "read_xlsx_val.py", line 24, in convert_to_csv
-        csv_f.writerow([cell.value for cell in row])
-    UnicodeEncodeError: 'ascii' codec can't encode character u'\u2026' in position 6: ordinal not in range(128)
+   .. code-block:: shell
+   
+       Traceback (most recent call last):
+         File "read_xlsx_val.py", line 68, in <module>
+           result = convert_to_csv(ws_active)
+         File "read_xlsx_val.py", line 24, in convert_to_csv
+           csv_f.writerow([cell.value for cell in row])
+       UnicodeEncodeError: 'ascii' codec can't encode character u'\u2026' in position 6: ordinal not in range(128)
 
 
 
