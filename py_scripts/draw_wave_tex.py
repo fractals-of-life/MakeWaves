@@ -852,6 +852,7 @@ def main():
                 end = len(signal_array)
                 if (re.search('TITLE', signal_array[0])):
                     title = ''.join(signal_array[1:])
+                    title = sanitize(title)
                 elif (re.search(':SCALE:',signal_array[0])):
                     # Overwrite what is coming from the command line.
                     # this allows specific control per worksheet in batch mode.
