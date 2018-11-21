@@ -281,6 +281,25 @@ Adding a note
 
 The example below illustrates, glitches, gated clocks(clk_c), combo uncertainty and breaks
 
+.. tip::
+
+   #. It is possible to get carried away with annotation marks. As a
+      consequence excel could look a bit daunting. Fortunately Excel does
+      provide a nifty trick to evaluate dependencies.
+   #. Make sure File > Options > Advanced : Display options for this workbook-> all is ticked. 
+   #. Click on a cell that contains a formula to trace.
+   #. From Formulas -> Formula Auditing -> Trace Precedents/Dependents
+   #. Excel will draw some arrows showing precedent/dependent depending on what is in the cell.
+
+      #. **Use dependent to check who reference the cell.** This is the
+         interesting case providing backwards reference.
+      #. Use Precedent to check which cells are reference by formula (double
+         clicking the cell automatcally does this)
+
+   #. These buttons can be added to the quick access tool bar via the rt click
+      contextual menu of the menu item.
+
+   #. The arrow in excel is transient. ie it will be lost when you save the document.
 
 Adding relationsips
 --------------------------------------------------------------------------------
