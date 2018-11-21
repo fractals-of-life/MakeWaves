@@ -713,6 +713,18 @@ def sanitize(text):
     text = re.sub(r'_',r'\\_',text) 
     return text
 
+
+# ------------------------------------------------------------------------------
+# 
+# ------------------------------------------------------------------------------
+def decorate_text(text):
+    # Here we handling the decoration of signal name, namely italics and
+    # bold  
+    text = re.sub(r'(.*)<i>',r'\\textit{\1}', text) 
+    text = re.sub(r'(.*)<b>',r'\\textbf{\1}', text) 
+    text = re.sub(r'(.*)<u>',r'\\underline{\1}', text) 
+    return text
+
 def check_spacers(
         raw_signal_array,
         set_of_spacer_marks
@@ -853,6 +865,7 @@ def main():
                 if (re.search('TITLE', signal_array[0])):
                     title = ''.join(signal_array[1:])
                     title = sanitize(title)
+                    title = decorate_text(title)
                 elif (re.search(':SCALE:',signal_array[0])):
                     # Overwrite what is coming from the command line.
                     # this allows specific control per worksheet in batch mode.
@@ -973,11 +986,8 @@ def main():
                     else:
                         #json_file.write('{0}\\\\\n'.format(''.join(indent_level)))
                         timing_block.append('\\' )
-                    # Here we handling the decoration of signal name, namely italics and
-                    # bold  
-                    signal_array[0] = re.sub(r'(.*)<i>',r'\\textit{\1}', signal_array[0]) 
-                    signal_array[0] = re.sub(r'(.*)<b>',r'\\textbf{\1}', signal_array[0]) 
-                    signal_array[0] = re.sub(r'(.*)<u>',r'\\underline{\1}', signal_array[0]) 
+
+                    signal_array[0] = decorate_text(signal_array[0])
                     if (re.search(r'<.0.\d+>', signal_array[0])):
                         # Undo the last signal push, The signal is still in signal_array.
                         timing_block.pop()
