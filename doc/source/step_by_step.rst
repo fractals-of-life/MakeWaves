@@ -119,7 +119,7 @@ Bus2 has no initial condition defined and the annotation although starts from ce
    |  |step3_rend|                                                             |
    +---------------------------------------------------------------------------+
 
-Breaks
+Text Decoration
 ````````````````````````````````````````````````````````````````````````````````
 The text decoration on a signal name can be additionally controlled by
 appending any of the following modifiers to the name.  
@@ -315,3 +315,34 @@ Adding relationsips
    +---------------------------------------------------------------------------+
    |  |step6_rend|                                                             |
    +---------------------------------------------------------------------------+
+
+
+Enhancing Excel source readability
+--------------------------------------------------------------------------------
+Simple excel tricks are deployed to improve the design-render cycle. 
+These techniques are bundled in template2 sheet. either template may be used as per convenience.
+The key areas to benefet are
+
+    #. using some conditional formatting to render a primitive waveform in
+       excel. The conditional formatting modifies cell boundaries based on its content
+       and type of signal. 
+
+    #. Using Excels dependency/precedent chasing mechanism to show annotations and their positions.
+       The example below have them added to the the quick access tool bar. See
+       the Red boxes.  Please note, this is not showing the dependencies that will be
+       rendered, instead shows which annotation mark is used where within the source
+
+.. |excel_tricks| image:: ./images/excel_tricks.png
+    :scale: 100%
+    :height: 500px
+    :width: 600px
+
+.. table:: Excel tricks 
+
+   +---------------------------------------------------------------------------+
+   |  source                                                                   |
+   +---------------------------------------------------------------------------+
+   |  |excel_tricks|                                                           |
+   +---------------------------------------------------------------------------+
+
+

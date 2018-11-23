@@ -917,7 +917,7 @@ def main():
                         # cell
                         elif (re.search(r'^[A-Z]+\d+>', signal_array[1])):
                             note_label_count += 1
-                            tex_blk_note_labels = tex_blk_note_labels + '\\draw [gray, ultra thin, {{Circle[length=1pt]}}-] ($({0}.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {{\\tiny \\em {1}}} -- ($({0}.HIGH) +(-0.5,0.6)$);\n' .format(signal_array[1], note_label_count) 
+                            tex_blk_note_labels = tex_blk_note_labels + '\\draw [red, ultra thin, {{Circle[length=1pt]}}-] ($({0}.HIGH)-(0.5,0.07)$) node[above=3,left=-1pt] {{\\tiny \\em {1}}} -- ($({0}.HIGH) +(-0.5,0.6)$);\n' .format(signal_array[1], note_label_count) 
     
                             temp = ('{0}\item ({2}) {1}\n' .format(''.join(indent_level), notes, note_label_count))
                         else:
